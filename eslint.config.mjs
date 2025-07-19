@@ -1,34 +1,23 @@
 // @ts-check
-import eslint from '@eslint/js';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import globals from 'globals';
-import tseslint from 'typescript-eslint';
+import { antfu } from "@antfu/eslint-config";
 
-export default tseslint.config(
+export default antfu(
   {
-    ignores: ['eslint.config.mjs'],
-  },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  eslintPluginPrettierRecommended,
-  {
-    languageOptions: {
-      globals: {
-        ...globals.node,
-        ...globals.jest,
-      },
-      sourceType: 'commonjs',
+    ignores: ["eslint.config.mjs"],
+    typescript: {
       parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
+        project: "./tsconfig.json",
       },
+      overrides: {
+        "ts/no-explicit-any": "off",
+        "ts/no-floating-promises": "warn",
+        "ts/no-unsafe-argument": "warn",
+      }
     },
-  },
-  {
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn'
+    stylistic: {
+      indent: 2,
+      quotes: "single",
+      semi: true,
     },
   },
 );
