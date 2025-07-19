@@ -3,7 +3,10 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import { config as dotenvConfig } from 'dotenv';
 import { AppModule } from './app.module';
+
+dotenvConfig();
 
 const SERVICE_NAME = 'TechRun-Server';
 
