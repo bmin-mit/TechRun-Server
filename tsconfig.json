@@ -7,8 +7,14 @@
     "baseUrl": "./",
     "module": "commonjs",
     "paths": {
-      "@/": [
-        "./src/*"
+      "@/*": [
+        "src/*"
+      ],
+      "@schemas/*": [
+        "src/schemas/*"
+      ],
+      "@common/*": [
+        "src/common/*"
       ]
     },
     "strictBindCallApply": true,
