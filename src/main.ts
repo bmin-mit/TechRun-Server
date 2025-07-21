@@ -1,4 +1,4 @@
-import process from 'node:process';
+import configuration from '@common/config/configuration';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -30,11 +30,10 @@ async function bootstrap() {
     }),
   );
 
-  const host = process.env.HOST ?? '0.0.0.0';
-  const port = process.env.PORT ?? 5001;
-  await app.listen(port, host);
-  logger.log(`Server is running at http://${host}:${port}`);
-  logger.log(`Swagger documentation available at http://${host}:${port}/swagger`);
+  await app.listen(configuration().port, configuration().host);
+  logger.log(`Server is running at http://${configuration().host}:${configuration().port}`);
+  logger.log(`Swagger documentation available at http://${configuration().host}:${configuration().port}/swagger`);
+  logger.log(`MongoDB URI: ${configuration().mongodbUri}`);
 }
 
 void bootstrap();

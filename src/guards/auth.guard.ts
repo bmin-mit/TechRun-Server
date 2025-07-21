@@ -22,7 +22,7 @@ export function AuthGuard(...roles: UserRoleEnum[]): Type<CanActivate> {
         }
 
         const tokenData: { sub: string } = await this.jwtService.verifyAsync(token);
-        const user = await this.userRepository.findUserByUsername(tokenData.sub);
+        const user = await this.userRepository.findUserById(tokenData.sub);
 
         if (!user)
           throw new UnauthorizedException();

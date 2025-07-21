@@ -8,11 +8,11 @@ import mongoose from 'mongoose';
 @Schema()
 export class AuctionHistory extends Base {
   @ApiProperty({ description: 'The auction' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Auction' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Auction.name })
   auction: Auction;
 
   @ApiProperty({ description: 'The team' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Team' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
   team: Team;
 
   @ApiProperty({ description: 'The auctioned price' })

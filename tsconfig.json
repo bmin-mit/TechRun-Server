@@ -15,6 +15,9 @@
       ],
       "@common/*": [
         "src/common/*"
+      ],
+      "@dtos/*": [
+        "src/dtos/*"
       ]
     },
     "strictBindCallApply": true,

@@ -8,11 +8,11 @@ import mongoose from 'mongoose';
 @Schema()
 export class Auction extends Base {
   @ApiProperty({ description: 'The item being auctioned' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Item' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Item.name })
   item: Item;
 
   @ApiProperty({ description: 'The team that wins the item' })
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Team' })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
   winningTeam?: Team;
 
   @ApiProperty({ description: 'The auction\'s winning price' })

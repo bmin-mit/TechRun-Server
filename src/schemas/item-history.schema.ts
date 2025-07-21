@@ -9,11 +9,11 @@ import mongoose from 'mongoose';
 @Schema()
 export class ItemHistory extends Base {
   @ApiProperty({ description: 'The item associated with the change' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Item' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Item.name })
   item: Item;
 
   @ApiProperty({ description: 'The team associated with the item change' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Team' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
   team: Team;
 
   @ApiProperty({ description: 'The action performed on the item', enum: ItemActionEnum })
@@ -21,7 +21,7 @@ export class ItemHistory extends Base {
   action: ItemActionEnum;
 
   @ApiProperty({ description: 'The objective team associated with the item change' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Team' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
   objectiveTeam: Team;
 
   @ApiProperty({ description: 'The reason for the change' })

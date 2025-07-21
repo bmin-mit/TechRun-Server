@@ -23,9 +23,9 @@ export class User extends Base {
   @Prop({ required: true, type: String, enum: UserRoleEnum, default: UserRoleEnum.MEMBER })
   role: UserRoleEnum;
 
-  @ApiProperty({ description: 'The team of the user' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Team' })
-  team: Team;
+  @ApiProperty({ description: 'The team of the user, only be null if admin' })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
+  team?: Team;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

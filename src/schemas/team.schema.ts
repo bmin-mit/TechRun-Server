@@ -23,7 +23,7 @@ export class Team extends Base {
   items: Array<{ itemId: string; quantity: number }>;
 
   @ApiProperty({ description: 'The team\'s next station ID' })
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Station' })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: Station.name })
   nextStation?: Station;
 }
 

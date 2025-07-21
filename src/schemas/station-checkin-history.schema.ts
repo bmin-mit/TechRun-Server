@@ -8,11 +8,11 @@ import mongoose from 'mongoose';
 @Schema()
 export class StationCheckinHistory extends Base {
   @ApiProperty({ description: 'The checked-in station' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Station' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Station.name })
   station: Station;
 
   @ApiProperty({ description: 'The team that checked in' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Team' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
   team: Team;
 }
 

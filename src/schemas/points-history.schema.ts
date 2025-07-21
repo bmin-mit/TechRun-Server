@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 @Schema()
 export class PointsHistory extends Base {
   @ApiProperty({ description: 'The team associated with the points change' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Team' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
   team: Team;
 
   @ApiProperty({ description: 'The difference in coins' })

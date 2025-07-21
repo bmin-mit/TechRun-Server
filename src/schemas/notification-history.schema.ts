@@ -16,7 +16,7 @@ export class NotificationHistory extends Base {
   content: string;
 
   @ApiProperty({ description: 'The user who created the notification' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: User.name })
   createdBy: User;
 
   @ApiProperty({ description: 'Is this notification public?' })
@@ -24,7 +24,7 @@ export class NotificationHistory extends Base {
   isPublic: boolean;
 
   @ApiProperty({ description: 'The team to which the notification is sent, if not public' })
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Team' })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
   toTeam?: Team;
 }
 
