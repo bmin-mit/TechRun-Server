@@ -2,7 +2,7 @@ import { UserRoleEnum } from '@common/enums/user-role.enum';
 import { CanActivate, ExecutionContext, Injectable, Logger, mixin, Type, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
-import { UserRepository } from '../user/user.repository';
+import { UserRepository } from '@/user/user.repository';
 
 export function AuthWsGuard(...roles: UserRoleEnum[]): Type<CanActivate> {
   @Injectable()

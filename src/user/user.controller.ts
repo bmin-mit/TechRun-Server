@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import {
-  AdminChangeUserPasswordReqDto,
+  AdminUpdateUserPasswordReqDto,
   CreateUserReqDto,
   UpdateUserPasswordDto,
   UpdateUserReqDto,
@@ -34,6 +34,20 @@ export class UserController {
       fullName: req.user.fullName,
       role: req.user.role,
     };
+  }
+
+  @ApiOperation({ description: 'Update my user info' })
+  @UseGuards(AuthGuard())
+  @Put('/me')
+  async updateMyInfo(@Request() req: AuthRequest, @Body() body: UpdateUserReqDto) {
+    return await this.userService.updateUser(req.user._id!.toString(), body);
+  }
+
+  @ApiOperation({ description: 'Update user password' })
+  @UseGuards(AuthGuard())
+  @Put('/me/update-password/')
+  async updateUserPassword(@Body() body: UpdateUserPasswordDto, @Request() req: AuthRequest) {
+    await this.userService.updateUserPassword(req.user._id!.toString(), body.oldPassword, body.newPassword);
   }
 
   @ApiOperation({ description: 'Get all users' })
@@ -64,17 +78,10 @@ export class UserController {
     return await this.userService.adminCreateUser(body);
   }
 
-  @ApiOperation({ description: 'Update user password' })
-  @UseGuards(AuthGuard())
-  @Put('/me/update-password/')
-  async updateUserPassword(@Body() body: UpdateUserPasswordDto, @Request() req: AuthRequest) {
-    await this.userService.updateUserPassword(req.user._id!.toString(), body.oldPassword, body.newPassword);
-  }
-
   @ApiOperation({ description: 'Admin update user password' })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Put('/admin/update-password/:id/')
-  async adminUpdateUserPassword(@Param('id') id: string, @Body() body: AdminChangeUserPasswordReqDto) {
+  async adminUpdateUserPassword(@Param('id') id: string, @Body() body: AdminUpdateUserPasswordReqDto) {
     return await this.userService.adminUpdateUserPassword(id, body.newPassword);
   }
 
@@ -83,13 +90,6 @@ export class UserController {
   @Put('/admin/update/:id')
   async updateUser(@Param('id') id: string, @Body() body: UpdateUserReqDto) {
     return await this.userService.updateUser(id, body);
-  }
-
-  @ApiOperation({ description: 'Update my user info' })
-  @UseGuards(AuthGuard())
-  @Put('/me')
-  async updateMyInfo(@Request() req: AuthRequest, @Body() body: UpdateUserReqDto) {
-    return await this.userService.updateUser(req.user._id!.toString(), body);
   }
 
   @ApiOperation({ description: 'Delete user by ID' })

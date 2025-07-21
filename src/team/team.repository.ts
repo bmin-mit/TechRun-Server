@@ -24,4 +24,12 @@ export class TeamRepository {
 
     return user.team.coins;
   }
+
+  async updateTeamCoins(teamId: string, change: number) {
+    return await this.teamModel.findByIdAndUpdate(
+      teamId,
+      { $inc: { coins: change } },
+      { new: true },
+    ).exec();
+  }
 }

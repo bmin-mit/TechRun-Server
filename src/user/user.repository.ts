@@ -1,4 +1,5 @@
 import { argon2idOptions } from '@common/constant/argon2id-options.const';
+import { UserRoleEnum } from '@common/enums/user-role.enum';
 import { CreateUserReqDto, UpdateUserReqDto } from '@dtos/user.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -11,22 +12,39 @@ export class UserRepository {
   constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
 
   async findUserByUsername(username: string): Promise<User | null> {
-    return this.userModel.findOne({ username }).exec();
+    return this.userModel.findOne({ username }).populate('team').exec();
   }
 
   async findUserById(userId: string): Promise<User | null> {
-    return this.userModel.findById(userId).exec();
+    return this.userModel.findById(userId).populate('team').exec();
   }
 
   async findAllUsers() {
-    return this.userModel.find({}).exec();
+    return this.userModel.find({}).populate('team').exec();
+  }
+
+  async findAllAdmins(): Promise<User[] | null> {
+    return this.userModel.find({ role: UserRoleEnum.ADMIN }).exec();
+  }
+
+  async findAllByTeamId(teamId: string): Promise<User[] | null> {
+    return this.userModel.find({ team: teamId }).populate('team').exec();
+  }
+
+  async findAllMembers(): Promise<User[] | null> {
+    return this.userModel.find({ role: UserRoleEnum.MEMBER }).exec();
+  }
+
+  async findAllLeaders(): Promise<User[] | null> {
+    return this.userModel.find({ role: UserRoleEnum.LEADER }).exec();
   }
 
   async createUser(user: CreateUserReqDto): Promise<User> {
     user.password = await hash(user.password, argon2idOptions);
     // eslint-disable-next-line new-cap
     const newUser = new this.userModel(user);
-    return newUser.save();
+    const populatedUser = await this.userModel.populate(newUser, { path: 'team' });
+    return populatedUser.save();
   }
 
   async markAsLoggedIn(username: string): Promise<User | null> {
@@ -34,7 +52,7 @@ export class UserRepository {
       { username },
       { lastLogin: new Date() },
       { new: true },
-    ).exec();
+    ).populate('team').exec();
   }
 
   async updateUserPassword(userId: string, newPassword: string): Promise<User | null> {
@@ -43,11 +61,11 @@ export class UserRepository {
       userId,
       { password: hashedPassword },
       { new: true },
-    ).exec();
+    ).populate('team').exec();
   }
 
   async updateUser(userId: string, updateData: UpdateUserReqDto): Promise<User | null> {
-    return this.userModel.findByIdAndUpdate(userId, updateData, { new: true }).exec();
+    return this.userModel.findByIdAndUpdate(userId, updateData, { new: true }).populate('team').exec();
   }
 
   async deleteUser(userId: string): Promise<User | null> {

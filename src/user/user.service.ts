@@ -1,12 +1,30 @@
 import { UserRoleEnum } from '@common/enums/user-role.enum';
 import { CreateUserReqDto, CreateUserWithoutRoleReqDto, UpdateUserReqDto } from '@dtos/user.dto';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { verify } from 'argon2';
 import { UserRepository } from '@/user/user.repository';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  private readonly logger = new Logger(UserService.name);
+
+  constructor(private readonly userRepository: UserRepository) {
+    void (async () => {
+      const admins = await this.userRepository.findAllAdmins();
+      if (admins === null || admins.length === 0) {
+        this.logger.log('No admin account found. Creating initial admin user');
+        await this.adminCreateUser({
+          username: 'admin',
+          fullName: 'Administrator',
+          role: UserRoleEnum.ADMIN,
+          password: 'admin',
+        });
+        this.logger.log('Initial admin user created successfully: admin/admin');
+        this.logger.log('Remember to change the password after the first login!');
+      }
+    })();
+  }
+
   async findAllUsers() {
     return await this.userRepository.findAllUsers();
   }
