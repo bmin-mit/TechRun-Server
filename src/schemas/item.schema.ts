@@ -5,13 +5,17 @@ import { Base } from '@schemas/base.schema';
 
 @Schema()
 export class Item extends Base {
-  @ApiProperty({ description: 'The name of the item' })
+  @ApiProperty({ description: 'The name of the item for displaying to the users' })
   @Prop({ required: true })
   name: string;
 
   @ApiProperty({ description: 'The description of the item' })
   @Prop({ required: true })
   description: string;
+
+  @ApiProperty({ description: 'The item internal codename for querying' })
+  @Prop({ required: true, unique: true, index: true })
+  codename: string;
 
   @ApiProperty({ description: 'The URL of the item\'s image' })
   @Prop({ required: true })

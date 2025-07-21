@@ -1,4 +1,5 @@
-import { SignInReqDto, SignInResDto, SignUpReqDto } from '@dtos/auth.dto';
+import { SignInReqDto, SignInResDto } from '@dtos/auth.dto';
+import { CreateUserWithoutRoleReqDto } from '@dtos/user.dto';
 import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { AuthService } from '@/auth/auth.service';
@@ -17,7 +18,7 @@ export class AuthController {
   @ApiResponse({ status: 201, type: () => SignInResDto })
   @ApiResponse({ status: 401, type: () => UnauthorizedException })
   @Post('sign-up')
-  async signUp(@Body() user: SignUpReqDto): Promise<SignInResDto> {
+  async signUp(@Body() user: CreateUserWithoutRoleReqDto): Promise<SignInResDto> {
     return await this.authService.signUp(user);
   }
 }

@@ -1,5 +1,5 @@
 import { argon2idOptions } from '@common/constant/argon2id-options.const';
-import { UserRoleEnum } from '@common/enums/user-role.enum';
+import { CreateUserReqDto, UpdateUserReqDto } from '@dtos/user.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@schemas/user.schema';
@@ -18,11 +18,14 @@ export class UserRepository {
     return this.userModel.findById(userId).exec();
   }
 
-  async createUser(user: { username: string; fullName: string; teamId?: string; role?: UserRoleEnum; password: string }): Promise<User> {
+  async findAllUsers() {
+    return this.userModel.find({}).exec();
+  }
+
+  async createUser(user: CreateUserReqDto): Promise<User> {
     user.password = await hash(user.password, argon2idOptions);
-    const { teamId, ...userInfo } = user;
     // eslint-disable-next-line new-cap
-    const newUser = new this.userModel({ ...userInfo, team: teamId });
+    const newUser = new this.userModel(user);
     return newUser.save();
   }
 
@@ -32,5 +35,22 @@ export class UserRepository {
       { lastLogin: new Date() },
       { new: true },
     ).exec();
+  }
+
+  async updateUserPassword(userId: string, newPassword: string): Promise<User | null> {
+    const hashedPassword = await hash(newPassword, argon2idOptions);
+    return this.userModel.findByIdAndUpdate(
+      userId,
+      { password: hashedPassword },
+      { new: true },
+    ).exec();
+  }
+
+  async updateUser(userId: string, updateData: UpdateUserReqDto): Promise<User | null> {
+    return this.userModel.findByIdAndUpdate(userId, updateData, { new: true }).exec();
+  }
+
+  async deleteUser(userId: string): Promise<User | null> {
+    return this.userModel.findByIdAndDelete(userId).exec();
   }
 }

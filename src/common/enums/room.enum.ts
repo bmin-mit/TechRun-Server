@@ -1,5 +1,5 @@
 export enum RoomEnum {
   PublicAnnouncement = 'public_announcement',
   Auction = 'auction',
-  StationUpdate = 'station-update',
+  StationUpdate = 'station_update',
 }
