@@ -50,21 +50,21 @@ export class ItemController {
 
   @ApiOperation({ summary: 'Create a new item', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Post()
+  @Post('/create')
   async createNewItem(@Body() item: CreateItemReqDto) {
     return await this.itemService.createNewItem(item);
   }
 
   @ApiOperation({ summary: 'Update an item', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Put('/:id')
+  @Put('/update/:id')
   async updateItem(@Param('id') id: string, @Body() item: CreateItemReqDto) {
     return await this.itemService.updateItem(id, item);
   }
 
   @ApiOperation({ summary: 'Delete an item', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Delete('/:id')
+  @Delete('/delete/:id')
   async deleteItem(@Param('id') id: string) {
     return await this.itemService.deleteItem(id);
   }
@@ -73,9 +73,9 @@ export class ItemController {
   @UseGuards(AuthGuard(UserRoleEnum.LEADER))
   @Post('/use')
   async useItem(
-    @Param('itemId') itemId: string,
-    @Param('objectiveTeamId') objectiveTeamId: string,
     @Request() req: AuthRequest,
+    @Param('itemId') itemId: string,
+    @Param('objectiveTeamId') objectiveTeamId?: string,
   ) {
     const teamId = req.user.team!._id!.toString();
     return await this.itemService.useItem(teamId, itemId, objectiveTeamId);

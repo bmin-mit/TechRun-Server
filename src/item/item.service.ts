@@ -41,7 +41,7 @@ export class ItemService {
   }
 
   // eslint-disable-next-line unused-imports/no-unused-vars
-  async useItem(teamId: string, itemId: string, objectiveTeamId: string) {
+  async useItem(teamId: string, itemId: string, objectiveTeamId?: string) {
     throw new BadRequestException('Not yet implemented');
     // const team = await this.teamRepository.findTeamById(teamId);
     //
