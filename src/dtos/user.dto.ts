@@ -1,5 +1,5 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { User } from '@schemas/user.schema';
+import { User } from '@/schemas/user.schema';
 
 export class CreateUserWithoutRoleReqDto extends OmitType(User, ['_id', 'createdAt', 'updatedAt', 'role', 'team'] as const) {
   @ApiProperty({ description: 'Is the user the leader of the team' })

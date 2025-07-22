@@ -1,7 +1,7 @@
-import configuration from '@common/config/configuration';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import configuration from '@/common/config/configuration';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuctionModule } from './auction/auction.module';

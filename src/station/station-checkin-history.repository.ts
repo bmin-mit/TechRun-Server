@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { StationCheckinHistory } from '@schemas/station-checkin-history.schema';
 import { Model } from 'mongoose';
+import { StationCheckinHistory } from '@/schemas/station-checkin-history.schema';
 
 @Injectable()
 export class StationCheckinHistoryRepository {

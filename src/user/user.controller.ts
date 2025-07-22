@@ -1,5 +1,3 @@
-import { UserRoleEnum } from '@common/enums/user-role.enum';
-import { AuthRequest } from '@common/interfaces/auth-request.interface';
 import {
   Body,
   Controller,
@@ -11,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
+import { UserRoleEnum } from '@/common/enums/user-role.enum';
+import { AuthRequest } from '@/common/interfaces/auth-request.interface';
 import {
   AdminUpdateUserPasswordReqDto,
   CreateUserReqDto,
@@ -50,9 +50,9 @@ export class UserController {
     await this.userService.updateUserPassword(req.user._id!.toString(), body.oldPassword, body.newPassword);
   }
 
-  @ApiOperation({ description: 'Get all users' })
+  @ApiOperation({ description: 'Get all users', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Get()
+  @Get('/users')
   async findAllUsers() {
     return await this.userService.findAllUsers();
   }
@@ -71,28 +71,28 @@ export class UserController {
     return await this.userService.findUserByUsername(username);
   }
 
-  @ApiOperation({ description: 'Create new user' })
+  @ApiOperation({ description: 'Create new user', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/admin/create')
   async createUser(@Body() body: CreateUserReqDto) {
     return await this.userService.adminCreateUser(body);
   }
 
-  @ApiOperation({ description: 'Admin update user password' })
+  @ApiOperation({ description: 'Admin update user password', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Put('/admin/update-password/:id/')
   async adminUpdateUserPassword(@Param('id') id: string, @Body() body: AdminUpdateUserPasswordReqDto) {
     return await this.userService.adminUpdateUserPassword(id, body.newPassword);
   }
 
-  @ApiOperation({ description: 'Update user' })
+  @ApiOperation({ description: 'Update user', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Put('/admin/update/:id')
   async updateUser(@Param('id') id: string, @Body() body: UpdateUserReqDto) {
     return await this.userService.updateUser(id, body);
   }
 
-  @ApiOperation({ description: 'Delete user by ID' })
+  @ApiOperation({ description: 'Delete user by ID', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/admin/delete/:id')
   async deleteUser(@Param('id') id: string) {

@@ -1,10 +1,10 @@
-import { ItemActionEnum } from '@common/enums/item-action.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Base } from '@schemas/base.schema';
-import { Item } from '@schemas/item.schema';
-import { Team } from '@schemas/team.schema';
 import mongoose from 'mongoose';
+import { ItemActionEnum } from '@/common/enums/item-action.enum';
+import { Base } from '@/schemas/base.schema';
+import { Item } from '@/schemas/item.schema';
+import { Team } from '@/schemas/team.schema';
 
 @Schema()
 export class ItemHistory extends Base {
@@ -22,7 +22,7 @@ export class ItemHistory extends Base {
 
   @ApiProperty({ description: 'The objective team associated with the item change' })
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
-  objectiveTeam: Team;
+  objectiveTeam?: Team;
 
   @ApiProperty({ description: 'The reason for the change' })
   @Prop({ required: true })

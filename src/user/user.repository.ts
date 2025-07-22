@@ -1,11 +1,11 @@
-import { argon2idOptions } from '@common/constant/argon2id-options.const';
-import { UserRoleEnum } from '@common/enums/user-role.enum';
-import { CreateUserReqDto, UpdateUserReqDto } from '@dtos/user.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '@schemas/user.schema';
 import { hash } from 'argon2';
 import { Model } from 'mongoose';
+import { argon2idOptions } from '@/common/constant/argon2id-options.const';
+import { UserRoleEnum } from '@/common/enums/user-role.enum';
+import { CreateUserReqDto, UpdateUserReqDto } from '@/dtos/user.dto';
+import { User } from '@/schemas/user.schema';
 
 @Injectable()
 export class UserRepository {

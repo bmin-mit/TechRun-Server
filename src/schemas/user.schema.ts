@@ -1,9 +1,9 @@
-import { UserRoleEnum } from '@common/enums/user-role.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Base } from '@schemas/base.schema';
-import { Team } from '@schemas/team.schema';
 import mongoose from 'mongoose';
+import { UserRoleEnum } from '@/common/enums/user-role.enum';
+import { Base } from '@/schemas/base.schema';
+import { Team } from '@/schemas/team.schema';
 
 @Schema()
 export class User extends Base {

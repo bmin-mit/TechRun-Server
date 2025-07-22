@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Base } from '@schemas/base.schema';
-import { Team } from '@schemas/team.schema';
 import mongoose from 'mongoose';
+import { Base } from '@/schemas/base.schema';
+import { Team } from '@/schemas/team.schema';
 
 @Schema()
-export class PointsHistory extends Base {
-  @ApiProperty({ description: 'The team associated with the points change' })
+export class CoinsHistory extends Base {
+  @ApiProperty({ description: 'The team associated with the coins change' })
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
   team: Team;
 
@@ -14,9 +14,9 @@ export class PointsHistory extends Base {
   @Prop({ required: true })
   diff: number;
 
-  @ApiProperty({ description: 'The reason for the points change' })
+  @ApiProperty({ description: 'The reason for the coins change' })
   @Prop({ required: true })
   reason: string;
 }
 
-export const PointsHistorySchema = SchemaFactory.createForClass(PointsHistory);
+export const CoinsHistorySchema = SchemaFactory.createForClass(CoinsHistory);

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class PublicAnnouncementDto {
+export class AnnouncementDto {
   @ApiProperty({ description: 'The title of the public announcement' })
   @IsString()
   @IsNotEmpty()

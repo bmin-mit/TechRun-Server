@@ -9,15 +9,6 @@
     "paths": {
       "@/*": [
         "src/*"
-      ],
-      "@schemas/*": [
-        "src/schemas/*"
-      ],
-      "@common/*": [
-        "src/common/*"
-      ],
-      "@dtos/*": [
-        "src/dtos/*"
       ]
     },
     "strictBindCallApply": true,

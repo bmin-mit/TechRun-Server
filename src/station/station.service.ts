@@ -1,6 +1,6 @@
-import { StationDifficultyEnum } from '@common/enums/station-difficulty.enum';
-import { CreateStationReqDto, UpdateStationReqDto } from '@dtos/station.dto';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { StationDifficultyEnum } from '@/common/enums/station-difficulty.enum';
+import { CreateStationReqDto, UpdateStationReqDto } from '@/dtos/station.dto';
 import { StationCheckinHistoryRepository } from '@/station/station-checkin-history.repository';
 import { StationRepository } from '@/station/station.repository';
 import { TeamRepository } from '@/team/team.repository';
@@ -29,6 +29,7 @@ export class StationService {
     if (await this.findStationByName(stationData.name)) {
       throw new ConflictException('Station with this name already exists');
     }
+
     return await this.stationRepository.createNewStation(stationData);
   }
 
@@ -36,6 +37,7 @@ export class StationService {
     if (await this.findStationById(stationId) === null) {
       throw new NotFoundException('Station not found');
     }
+
     return await this.stationRepository.updateStation(stationId, updateData);
   }
 
@@ -48,26 +50,37 @@ export class StationService {
   }
 
   async visitStation(stationId: string, teamId: string) {
-    const team = await this.teamRepository.findTeamByName(teamId);
+    if (!(await this.canTeamVisitStation(stationId, teamId))) {
+      throw new ConflictException('Team cannot visit this station');
+    }
+
+    const station = await this.findStationById(stationId);
     const price = await this.getVisitPrice(stationId, teamId);
+
+    await this.teamRepository.updateTeamCoins(teamId, -price, `Visiting station ${station!.name}`);
+    return await this.stationCheckinHistoryRepository.createCheckinHistory(stationId, teamId);
+  }
+
+  async canTeamVisitStation(stationId: string, teamId: string) {
+    const team = await this.teamRepository.findTeamByCodename(teamId);
+    const station = await this.findStationById(stationId);
 
     if (!team) {
       throw new NotFoundException('Team not found');
     }
 
-    if (
-      (await this.findVisitedStationsByTeam(teamId))
-        .some(station => station._id!.toString() === stationId)
-    ) {
-      throw new ConflictException('You have already visited this station');
+    if (!station) {
+      throw new NotFoundException('Station not found');
     }
+
+    const price = await this.getVisitPrice(stationId, teamId);
 
     if (team.coins < price) {
-      throw new ConflictException('Not enough coins to visit this station');
+      return false; // Not enough coins to visit the station
     }
 
-    await this.teamRepository.updateTeamCoins(teamId, -price);
-    return await this.stationCheckinHistoryRepository.createCheckinHistory(stationId, teamId);
+    const visitedStations = await this.findVisitedStationsByTeam(teamId);
+    return !visitedStations.some(station => station._id!.toString() === stationId);
   }
 
   async findVisitedStationsByTeam(teamId: string) {
@@ -76,11 +89,14 @@ export class StationService {
 
   async getVisitPrice(stationId: string, teamId: string) {
     const station = await this.findStationById(stationId);
+
     if (!station) {
       throw new NotFoundException('Station not found');
     }
+
     const visitedStations = await this.findVisitedStationsByTeam(teamId);
     const visitCount = visitedStations.filter(station => station._id!.toString() === stationId).length;
+
     // Must be greater than or equal to 0
     switch (station.difficulty) {
       case StationDifficultyEnum.EASY:

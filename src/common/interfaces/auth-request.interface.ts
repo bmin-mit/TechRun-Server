@@ -1,4 +1,4 @@
-import type { User } from '@schemas/user.schema';
+import type { User } from '@/schemas/user.schema';
 
 export interface AuthRequest extends Request {
   user: User;

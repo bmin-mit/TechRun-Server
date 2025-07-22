@@ -1,7 +1,7 @@
-import { UserRoleEnum } from '@common/enums/user-role.enum';
 import { CanActivate, ExecutionContext, Injectable, Logger, mixin, Type, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { UserRepository } from '@/user/user.repository';
 
 export function AuthGuard(...roles: UserRoleEnum[]): Type<CanActivate> {

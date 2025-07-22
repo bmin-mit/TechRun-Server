@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Base } from '@schemas/base.schema';
-import { Item } from '@schemas/item.schema';
-import { Team } from '@schemas/team.schema';
 import mongoose from 'mongoose';
+import { Base } from '@/schemas/base.schema';
+import { Item } from '@/schemas/item.schema';
+import { Team } from '@/schemas/team.schema';
 
 @Schema()
 export class Auction extends Base {

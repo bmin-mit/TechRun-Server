@@ -1,9 +1,9 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Auction } from '@schemas/auction.schema';
-import { Base } from '@schemas/base.schema';
-import { Team } from '@schemas/team.schema';
 import mongoose from 'mongoose';
+import { Auction } from '@/schemas/auction.schema';
+import { Base } from '@/schemas/base.schema';
+import { Team } from '@/schemas/team.schema';
 
 @Schema()
 export class AuctionHistory extends Base {
@@ -19,3 +19,5 @@ export class AuctionHistory extends Base {
   @Prop({ required: true })
   auctionedPrice: number;
 }
+
+export const AuctionHistorySchema = SchemaFactory.createForClass(AuctionHistory);

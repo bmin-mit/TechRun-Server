@@ -1,7 +1,7 @@
-import { UserRoleEnum } from '@common/enums/user-role.enum';
-import { CreateUserReqDto, CreateUserWithoutRoleReqDto, UpdateUserReqDto } from '@dtos/user.dto';
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { verify } from 'argon2';
+import { UserRoleEnum } from '@/common/enums/user-role.enum';
+import { CreateUserReqDto, CreateUserWithoutRoleReqDto, UpdateUserReqDto } from '@/dtos/user.dto';
 import { UserRepository } from '@/user/user.repository';
 
 @Injectable()

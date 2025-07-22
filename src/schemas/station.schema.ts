@@ -1,7 +1,7 @@
-import { StationDifficultyEnum } from '@common/enums/station-difficulty.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Base } from '@schemas/base.schema';
+import { StationDifficultyEnum } from '@/common/enums/station-difficulty.enum';
+import { Base } from '@/schemas/base.schema';
 
 @Schema()
 export class Station extends Base {

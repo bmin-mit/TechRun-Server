@@ -1,8 +1,8 @@
-import { SignInReqDto, SignInResDto } from '@dtos/auth.dto';
-import { CreateUserWithoutRoleReqDto } from '@dtos/user.dto';
 import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { AuthService } from '@/auth/auth.service';
+import { SignInReqDto, SignInResDto } from '@/dtos/auth.dto';
+import { CreateUserWithoutRoleReqDto } from '@/dtos/user.dto';
 
 @Controller('auth')
 export class AuthController {

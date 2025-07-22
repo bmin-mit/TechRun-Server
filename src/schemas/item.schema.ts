@@ -1,7 +1,7 @@
-import { ItemTypeEnum } from '@common/enums/item-type.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Base } from '@schemas/base.schema';
+import { ItemTypeEnum } from '@/common/enums/item-type.enum';
+import { Base } from '@/schemas/base.schema';
 
 @Schema()
 export class Item extends Base {
@@ -17,9 +17,9 @@ export class Item extends Base {
   @Prop({ required: true, unique: true, index: true })
   codename: string;
 
-  @ApiProperty({ description: 'The URL of the item\'s image' })
-  @Prop({ required: true })
-  imageUrl: string;
+  @ApiProperty({ description: 'The Base64 encoded form of the item\'s image' })
+  @Prop({ required: false })
+  imageBase64?: string;
 
   @ApiProperty({ description: 'The type of the item', enum: ItemTypeEnum })
   @Prop({ type: String, enum: ItemTypeEnum, required: true })

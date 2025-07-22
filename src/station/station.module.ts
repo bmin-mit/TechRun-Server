@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { StationCheckinHistory, StationCheckinHistorySchema } from '@schemas/station-checkin-history.schema';
-import { Station, StationSchema } from '@schemas/station.schema';
+import { StationCheckinHistory, StationCheckinHistorySchema } from '@/schemas/station-checkin-history.schema';
+import { Station, StationSchema } from '@/schemas/station.schema';
 import { StationCheckinHistoryRepository } from '@/station/station-checkin-history.repository';
 import { StationRepository } from '@/station/station.repository';
 import { TeamModule } from '@/team/team.module';

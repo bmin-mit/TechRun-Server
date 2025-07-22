@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Base } from '@schemas/base.schema';
-import { Team } from '@schemas/team.schema';
-import { User } from '@schemas/user.schema';
 import mongoose from 'mongoose';
+import { NotificationTypeEnum } from '@/common/enums/notification-type.enum';
+import { Base } from '@/schemas/base.schema';
+import { Team } from '@/schemas/team.schema';
+import { User } from '@/schemas/user.schema';
 
 @Schema()
 export class NotificationHistory extends Base {
@@ -15,13 +16,13 @@ export class NotificationHistory extends Base {
   @Prop({ required: true })
   content: string;
 
-  @ApiProperty({ description: 'The user who created the notification' })
+  @ApiProperty({ description: 'The user who created the notification, only be null if sent from the server' })
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: User.name })
-  createdBy: User;
+  createdBy?: User;
 
-  @ApiProperty({ description: 'Is this notification public?' })
-  @Prop({ required: true, default: false })
-  isPublic: boolean;
+  @ApiProperty({ description: 'The type of the notification' })
+  @Prop({ required: true, default: NotificationTypeEnum.PUBLIC_ANNOUNCEMENT, enum: NotificationTypeEnum, type: String })
+  type: NotificationTypeEnum;
 
   @ApiProperty({ description: 'The team to which the notification is sent, if not public' })
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
