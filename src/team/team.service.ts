@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuctionService } from '@/auction/auction.service';
-import { CreateTeamReqDto, UpdateTeamReqDto } from '@/dtos/team.dto';
+import { CreateTeamReqDto, MeResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
 import { TeamRepository } from '@/team/team.repository';
 
 @Injectable()
@@ -98,16 +98,19 @@ export class TeamService {
     return await this.teamRepository.getOtherTeamsCoins();
   }
 
-  async me(teamId: string) {
+  async me(teamId: string): Promise<MeResDto> {
     const team = await this.teamRepository.findTeamById(teamId);
     if (!team) {
       throw new NotFoundException('The team with this ID does not exist.');
     }
+
     return {
       _id: team._id!.toString(),
+      name: team.name,
       username: team.username,
       coins: team.coins,
       unlockedPuzzles: team.unlockedPuzzles,
+      skillCards: team.skillCards,
     };
   }
 }

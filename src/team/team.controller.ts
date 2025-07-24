@@ -11,7 +11,7 @@ import {
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { AuthRequest } from '@/common/interfaces/auth-request.interface';
-import { CreateTeamReqDto, OtherTeamsCoinsResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
+import { CreateTeamReqDto, MeResDto, OtherTeamsCoinsResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
 import { AuthGuard } from '@/guards/auth.guard';
 import { TeamService } from '@/team/team.service';
 
@@ -116,9 +116,10 @@ export class TeamController {
   }
 
   @ApiOperation({ description: 'Get my team info' })
+  @ApiResponse({ status: 200, description: 'Returns my team info', type: MeResDto })
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/my-team')
   async getMyTeam(@Request() req: AuthRequest) {
-    return this.teamService.findTeamByUsername(req.user._id!.toString());
+    return this.teamService.me(req.user._id!.toString());
   }
 }

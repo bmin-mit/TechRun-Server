@@ -85,6 +85,20 @@ export class AuctionService {
     const { winner, losers } = await this.auctionRepository.getAuctionWinnerLoser(this.auctionId!);
     this.logger.log(`Auction ended. Winner: ${winner.username}, Losers: ${losers.map(l => l.username).join(', ')}`);
 
+    // Add the skill card to the winning team
+    await this.teamRepository.addSkillCardToTeam(winner.username, auction.skillCard);
+    this.logger.log(`Skill card ${auction.skillCard} added to team ${winner.username}`);
+
+    // Remove 50% of the coins from the losing teams
+    for (const loser of losers) {
+      const teamCoins = await this.teamRepository.getTeamCoins(loser.username);
+      if (teamCoins !== null) {
+        const coinsToDeduct = Math.floor(teamCoins * 0.5);
+        await this.teamRepository.updateTeamCoins(loser.username, teamCoins - coinsToDeduct, `Auction ${this.auctionId} loss`);
+        this.logger.log(`Deducted ${coinsToDeduct} coins from team ${loser.username}`);
+      }
+    }
+
     this.auctionId = null; // Reset auction ID
   }
 

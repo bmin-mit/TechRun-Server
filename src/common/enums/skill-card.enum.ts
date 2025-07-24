@@ -6,3 +6,9 @@ export enum SkillCardEnum {
   ControlC = 'control_c',
   GIAO_DICH_BAT_BUOC = 'giao_dich_bat_buoc',
 }
+
+export enum SkillCardActionEnum {
+  USED = 'used',
+  ADDED = 'added',
+  REMOVED = 'removed',
+}

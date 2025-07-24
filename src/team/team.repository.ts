@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { SkillCardActionEnum, SkillCardEnum } from '@/common/enums/skill-card.enum';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { CreateTeamReqDto, OtherTeamsCoinsResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
 import { CoinsHistory } from '@/schemas/coins-history.schema';
+import { SkillCardHistory } from '@/schemas/skill-card-history.schema';
 import { Team } from '@/schemas/team.schema';
 
 @Injectable()
@@ -11,6 +13,7 @@ export class TeamRepository {
   constructor(
     @InjectModel(Team.name) private readonly teamModel: Model<Team>,
     @InjectModel(CoinsHistory.name) private readonly coinsHistoryModel: Model<CoinsHistory>,
+    @InjectModel(SkillCardHistory.name) private readonly skillCardModel: Model<SkillCardHistory>,
   ) {
   }
 
@@ -121,6 +124,24 @@ export class TeamRepository {
     }
 
     team.password = adminPassword;
+    return await team.save();
+  }
+
+  async addSkillCardToTeam(teamUsername: string, skillCard: SkillCardEnum) {
+    const team = await this.teamModel.findOne({ username: teamUsername }).exec();
+    if (!team) {
+      return null; // Team not found
+    }
+
+    // Log the addition of the skill card
+    await this.skillCardModel.create({
+      team,
+      skillCard,
+      action: SkillCardActionEnum.ADDED,
+    });
+
+    team.skillCards.push(skillCard);
+
     return await team.save();
   }
 }
