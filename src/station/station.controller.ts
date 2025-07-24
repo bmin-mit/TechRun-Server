@@ -21,49 +21,49 @@ export class StationController {
   constructor(private readonly stationService: StationService) {}
 
   @ApiOperation({ description: 'Get all stations' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/stations')
   async findAllStations() {
     return await this.stationService.findAllStations();
   }
 
   @ApiOperation({ description: 'Find station by name' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/name/:name')
   async findStationByName(@Param('name') name: string) {
     return await this.stationService.findStationByName(name);
   }
 
   @ApiOperation({ description: 'Find station by ID' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/id/:id')
   async findStationById(@Param('id') id: string) {
     return await this.stationService.findStationById(id);
   }
 
   @ApiOperation({ description: 'Get all stations that my team has visited' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/visited')
   async findVisitedStations(@Request() req: AuthRequest) {
     return await this.stationService.findVisitedStationsByTeam(req.user._id!.toString());
   }
 
   @ApiOperation({ description: 'Get the price of visiting the current station' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/visit-price/:id')
   async getVisitPrice(@Param('id') id: string, @Request() req: AuthRequest) {
     return await this.stationService.getVisitPrice(id, req.user._id!.toString());
   }
 
   @ApiOperation({ description: 'Can the team visit the current station?' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/can-visit/:id')
   async canTeamVisitStation(@Param('id') id: string, @Request() req: AuthRequest) {
     return await this.stationService.canTeamVisitStation(id, req.user._id!.toString());
   }
 
   @ApiOperation({ description: 'Mark a station as visited' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Post('/visit/:id')
   async visitStation(@Param('id') id: string, @Request() req: AuthRequest) {
     return await this.stationService.visitStation(id, req.user._id!.toString());

@@ -18,21 +18,21 @@ export function AuthGuard(...roles: UserRoleEnum[]): Type<CanActivate> {
         const token = this.extractTokenFromHeader(request);
 
         if (!token) {
-          throw new UnauthorizedException();
+          throw new UnauthorizedException('No token provided');
         }
 
         const tokenData: { sub: string } = await this.jwtService.verifyAsync(token);
         const user = await this.teamRepository.findTeamById(tokenData.sub);
 
         if (!user)
-          throw new UnauthorizedException();
+          throw new UnauthorizedException('User not found');
 
-        if ((roles.length > 0 && roles.includes(user.role)) || !roles || roles.length === 0) {
+        if (!roles || roles.length === 0 || (roles.length > 0 && roles.includes(user.role as UserRoleEnum))) {
           request.user = user;
           return true;
         }
 
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Insufficient permissions');
       }
       catch (error) {
         Logger.error(error);

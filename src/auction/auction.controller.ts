@@ -6,8 +6,9 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AuctionService } from '@/auction/auction.service';
+import { SkillCardEnum } from '@/common/enums/skill-card.enum';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { AuthRequest } from '@/common/interfaces/auth-request.interface';
 import { AuthGuard } from '@/guards/auth.guard';
@@ -31,18 +32,19 @@ export class AuctionController {
   }
 
   @ApiOperation({ description: 'Create auction', tags: ['Admin'] })
+  @ApiQuery({ name: 'skillCard', enum: SkillCardEnum, required: true, description: 'Skill card type for the auction' })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/create')
   createAuction(
-    @Query('itemId') itemId: string,
+    @Query('skillCard') skillCard: SkillCardEnum,
     @Query('prepareDurationInSeconds') prepareDurationInSeconds: number,
     @Query('durationInSeconds') durationInSeconds: number,
   ) {
-    return this.auctionService.createAuction(itemId, prepareDurationInSeconds, durationInSeconds);
+    return this.auctionService.createAuction(skillCard, prepareDurationInSeconds, durationInSeconds);
   }
 
   @ApiOperation({ description: 'Get current auction' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/current')
   getCurrentAuction() {
     return this.auctionService.getCurrentAuction();
@@ -58,13 +60,13 @@ export class AuctionController {
   }
 
   @ApiOperation({ description: 'Record auction bid' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Post('/bid')
   recordAuctionBid(
     @Query('bidPrice') bidPrice: number,
     @Request() req: AuthRequest,
   ) {
-    const bidderTeamUsername = req.user._id!.toString();
-    return this.auctionService.recordAuctionBid(bidderTeamUsername, bidPrice);
+    const bidderTeamId = req.user._id!.toString();
+    return this.auctionService.recordAuctionBid(bidderTeamId, bidPrice);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Station } from '@/schemas/station.schema';
@@ -15,7 +15,7 @@ export class StationRepository {
 
   async findStationById(stationId: string): Promise<Station | null> {
     if (!mongoose.Types.ObjectId.isValid(stationId))
-      throw new Error('Invalid station ID');
+      throw new NotFoundException('Invalid station ID');
     return await this.stationModel.findById(stationId).exec();
   }
 

@@ -20,14 +20,14 @@ export class AuthService {
     try {
       const existingUser = await this.teamRepository.findTeamByUsername(user.username);
       if (existingUser === null) {
-        throw new Error('Invalid credentials');
+        throw new UnauthorizedException('Invalid credentials');
       }
 
       if (existingUser.password === user.password) {
         return await this.createAccessToken(user.username, existingUser._id!.toString());
       }
       else {
-        throw new Error('Invalid credentials');
+        throw new UnauthorizedException('Invalid credentials');
       }
     }
     catch (error) {

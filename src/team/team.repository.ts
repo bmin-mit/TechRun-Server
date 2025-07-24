@@ -46,7 +46,7 @@ export class TeamRepository {
     return team.unlockedPuzzles;
   }
 
-  async updateTeamCoins(teamUsername: string, change: number, reason: string): Promise<Team | null> {
+  async updateTeamCoins(teamUsername: string, diff: number, reason: string): Promise<Team | null> {
     const team = await this.findTeamByUsername(teamUsername);
     if (!team) {
       return null;
@@ -54,13 +54,13 @@ export class TeamRepository {
 
     await this.coinsHistoryModel.create({
       team,
-      change,
+      diff,
       reason,
     });
 
     return await this.teamModel.findByIdAndUpdate(
       team,
-      { $inc: { coins: change } },
+      { $inc: { coins: diff } },
       { new: true },
     ).exec();
   }
@@ -85,7 +85,7 @@ export class TeamRepository {
       name: team.name,
       username: team.username,
       coins: team.coins,
-    }));
+    })).filter(team => team.username !== 'admin'); // Exclude admin team
   }
 
   async unlockPuzzle(teamUsername: string, unlockedIndex: number) {
@@ -110,6 +110,17 @@ export class TeamRepository {
       role: UserRoleEnum.ADMIN,
     });
 
+    return await team.save();
+  }
+
+  async updateAdminPassword(adminPassword: string) {
+    const team = await this.teamModel.findOne({ username: 'admin' }).exec();
+
+    if (!team) {
+      return await this.createAdmin(adminPassword);
+    }
+
+    team.password = adminPassword;
     return await team.save();
   }
 }

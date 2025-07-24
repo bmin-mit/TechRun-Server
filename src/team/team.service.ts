@@ -17,7 +17,13 @@ export class TeamService {
       if (await this.findTeamByUsername('admin') === null) {
         this.logger.warn('No user with username "admin" found. Creating an admin user.');
         await this.teamRepository.createAdmin(
-          configService.get<string>('adminPassword') || 'admin',
+          this.configService.get<string>('adminPassword') || 'admin',
+        );
+      }
+      else {
+        this.logger.log('Admin user already exists. Updating admin password to reflect ENV.');
+        await this.teamRepository.updateAdminPassword(
+          this.configService.get<string>('adminPassword') || 'admin',
         );
       }
     })();
@@ -39,7 +45,12 @@ export class TeamService {
     return await this.teamRepository.getTeamCoins(teamUsername);
   }
 
-  async getTeamUnlockedPuzzles(teamUsername: string) {
+  async getTeamUnlockedPuzzles(teamId: string) {
+    const team = await this.teamRepository.findTeamById(teamId);
+    if (!team) {
+      throw new NotFoundException('The team with this ID does not exist.');
+    }
+    const teamUsername = team.username;
     return await this.teamRepository.getTeamUnlockedPuzzles(teamUsername);
   }
 
@@ -80,10 +91,23 @@ export class TeamService {
   }
 
   async getOtherTeamsCoins() {
-    if (!await this.auctionService.canSeeOtherTeamsCoins()) {
+    if (!this.auctionService.canSeeOtherTeamsCoins()) {
       throw new ConflictException('You can only see other teams\' coins during the auction preparation phase.', 'auction_preparation_phase');
     }
 
     return await this.teamRepository.getOtherTeamsCoins();
+  }
+
+  async me(teamId: string) {
+    const team = await this.teamRepository.findTeamById(teamId);
+    if (!team) {
+      throw new NotFoundException('The team with this ID does not exist.');
+    }
+    return {
+      _id: team._id!.toString(),
+      username: team.username,
+      coins: team.coins,
+      unlockedPuzzles: team.unlockedPuzzles,
+    };
   }
 }

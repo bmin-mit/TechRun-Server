@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuctionTickService } from '@/auction/auction-tick.service';
 import { AuctionRepository } from '@/auction/auction.repository';
 import { AuctionHistory, AuctionHistorySchema } from '@/schemas/auction-history.schema';
+import { AuctionStatus, AuctionStatusSchema } from '@/schemas/auction-status.schema';
 import { Auction, AuctionSchema } from '@/schemas/auction.schema';
 import { TeamModule } from '@/team/team.module';
 import { AuctionController } from './auction.controller';
@@ -14,6 +15,10 @@ import { AuctionService } from './auction.service';
       {
         name: Auction.name,
         schema: AuctionSchema,
+      },
+      {
+        name: AuctionStatus.name,
+        schema: AuctionStatusSchema,
       },
       {
         name: AuctionHistory.name,

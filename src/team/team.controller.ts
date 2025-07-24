@@ -29,14 +29,14 @@ export class TeamController {
 
   @ApiOperation({ description: 'Get team by team username', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Get('/:teamUsername')
+  @Get('/username/:teamUsername')
   async getTeamByName(@Param('teamUsername') teamUsername: string) {
     return await this.teamService.findTeamByUsername(teamUsername);
   }
 
   @ApiOperation({ description: 'Get team by team ID', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Get('/:teamId')
+  @Get('/id/:teamId')
   async getTeamById(@Param('teamId') teamId: string) {
     return await this.teamService.findTeamById(teamId);
   }
@@ -49,7 +49,7 @@ export class TeamController {
   }
 
   @ApiOperation({ description: 'Get other teams\'s coins, only on the preparation of the auction' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/other-teams-coins')
   @ApiResponse({ status: 200, description: 'Returns other teams\' coins', type: [OtherTeamsCoinsResDto] })
   async getOtherTeamsCoins() {
@@ -57,7 +57,7 @@ export class TeamController {
   }
 
   @ApiOperation({ description: 'Get my team coins' })
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/coins')
   async getTeamCoins(@Request() req: AuthRequest) {
     return await this.teamService.getTeamCoins(req.user._id!.toString());
@@ -96,5 +96,29 @@ export class TeamController {
   @Post('/delete/:teamUsername')
   async deleteTeam(@Param('teamUsername') teamUsername: string) {
     return await this.teamService.deleteTeam(teamUsername);
+  }
+
+  @ApiOperation({ description: 'Get team unlocked puzzles' })
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
+  @Get('/unlocked-puzzles')
+  async getTeamUnlockedPuzzles(@Request() req: AuthRequest) {
+    return await this.teamService.getTeamUnlockedPuzzles(req.user._id!.toString());
+  }
+
+  @ApiOperation({ description: 'Unlock a puzzle for the team', tags: ['Admin'] })
+  @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
+  @Post('/unlock-puzzle')
+  async unlockTeamPuzzle(
+    @Query('teamUsername') teamUsername: string,
+    @Query('unlockIndex') unlockIndex: number,
+  ) {
+    return await this.teamService.unlockTeamPuzzle(teamUsername, unlockIndex);
+  }
+
+  @ApiOperation({ description: 'Get my team info' })
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
+  @Get('/my-team')
+  async getMyTeam(@Request() req: AuthRequest) {
+    return this.teamService.findTeamByUsername(req.user._id!.toString());
   }
 }
