@@ -1,17 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { verify } from 'argon2';
 import { SignInReqDto, SignInResDto } from '@/dtos/auth.dto';
-import { CreateUserWithoutRoleReqDto } from '@/dtos/user.dto';
-import { UserRepository } from '@/user/user.repository';
-import { UserService } from '@/user/user.service';
+import { TeamRepository } from '@/team/team.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userRepository: UserRepository,
-    private readonly userService: UserService,
+    private readonly teamRepository: TeamRepository,
   ) {}
 
   async createAccessToken(username: string, userId: string): Promise<SignInResDto> {
@@ -22,31 +18,17 @@ export class AuthService {
 
   async signIn(user: SignInReqDto): Promise<SignInResDto> {
     try {
-      const existingUser = await this.userRepository.findUserByUsername(user.username);
+      const existingUser = await this.teamRepository.findTeamByUsername(user.username);
       if (existingUser === null) {
         throw new Error('Invalid credentials');
       }
 
-      if (await verify(existingUser.password, user.password)) {
-        await this.userRepository.markAsLoggedIn(existingUser.username);
+      if (existingUser.password === user.password) {
         return await this.createAccessToken(user.username, existingUser._id!.toString());
       }
       else {
         throw new Error('Invalid credentials');
       }
-    }
-    catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
-  }
-
-  async signUp(user: CreateUserWithoutRoleReqDto): Promise<SignInResDto> {
-    try {
-      const newUser = await this.userService.createUser(user);
-
-      // Return the access token for the new user
-      await this.userRepository.markAsLoggedIn(newUser.username);
-      return await this.createAccessToken(newUser.username, newUser._id!.toString());
     }
     catch (error) {
       throw new UnauthorizedException(error.message);

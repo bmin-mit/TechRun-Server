@@ -1,7 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { AuctionService } from '@/auction/auction.service';
 import { CreateTeamReqDto, UpdateTeamReqDto } from '@/dtos/team.dto';
-import { NotificationService } from '@/notification/notification.service';
 import { TeamRepository } from '@/team/team.repository';
 
 @Injectable()
@@ -9,11 +8,10 @@ export class TeamService {
   constructor(
     private readonly teamRepository: TeamRepository,
     private readonly auctionService: AuctionService,
-    private readonly notificationService: NotificationService,
   ) {}
 
-  async findTeamByCodename(teamCodename: string) {
-    return await this.teamRepository.findTeamByCodename(teamCodename);
+  async findTeamByUsername(teamCodename: string) {
+    return await this.teamRepository.findTeamByUsername(teamCodename);
   }
 
   async findTeamById(teamId: string) {
@@ -24,58 +22,48 @@ export class TeamService {
     return await this.teamRepository.findAllTeams();
   }
 
-  async getTeamCoins(teamId: string) {
-    return await this.teamRepository.getTeamCoins(teamId);
+  async getTeamCoins(teamUsername: string) {
+    return await this.teamRepository.getTeamCoins(teamUsername);
   }
 
-  async getTeamStations(teamId: string) {
-    return await this.teamRepository.getTeamStations(teamId);
+  async getTeamUnlockedPuzzles(teamUsername: string) {
+    return await this.teamRepository.getTeamUnlockedPuzzles(teamUsername);
   }
 
-  async getTeamMembers(teamId: string) {
-    return await this.teamRepository.getTeamMembers(teamId);
+  async updateTeamCoins(teamUsername: string, coins: number, reason: string) {
+    return await this.teamRepository.updateTeamCoins(teamUsername, coins, reason);
   }
 
-  async getTeamItems(teamId: string) {
-    return await this.teamRepository.getTeamItems(teamId);
-  }
-
-  async updateTeamCoins(teamId: string, coins: number, reason: string) {
-    await this.notificationService.sendCoinsUpdateNotification(teamId, coins, reason);
-    return await this.teamRepository.updateTeamCoins(teamId, coins, reason);
-  }
-
-  async updateTeamItems(teamId: string, itemId: string, quantity: number, reason: string) {
-    await this.notificationService.sendItemUpdateNotification(teamId, itemId, quantity, reason);
-    return await this.teamRepository.updateTeamItems(teamId, itemId, quantity, reason);
+  async unlockTeamPuzzle(teamUsername: string, unlockIndex: number) {
+    return await this.teamRepository.unlockPuzzle(teamUsername, unlockIndex);
   }
 
   async createTeam(teamData: CreateTeamReqDto) {
-    if (await this.findTeamByCodename(teamData.codename)) {
-      throw new ConflictException('The team with this codename already exists.');
+    if (await this.findTeamByUsername(teamData.username)) {
+      throw new ConflictException('The team with this username already exists.');
     }
 
     return await this.teamRepository.createTeam(teamData);
   }
 
-  async updateTeam(teamId: string, teamData: UpdateTeamReqDto) {
-    if (await this.findTeamById(teamId) === null) {
-      throw new NotFoundException('The team with this ID does not exist.');
+  async updateTeam(teamUsername: string, teamData: UpdateTeamReqDto) {
+    if (await this.findTeamByUsername(teamUsername) === null) {
+      throw new NotFoundException('The team with this username does not exist.');
     }
 
-    if (await this.teamRepository.findTeamByCodename(teamData.codename)) {
-      throw new ConflictException('The team with this codename already exists.');
+    if (await this.teamRepository.findTeamByUsername(teamData.username)) {
+      throw new ConflictException('The team with this username already exists.');
     }
 
-    return await this.teamRepository.updateTeam(teamId, teamData);
+    return await this.teamRepository.updateTeam(teamUsername, teamData);
   }
 
-  async deleteTeam(teamId: string) {
-    if (await this.findTeamById(teamId) === null) {
-      throw new NotFoundException('The team with this ID does not exist.');
+  async deleteTeam(teamUsername: string) {
+    if (await this.findTeamByUsername(teamUsername) === null) {
+      throw new NotFoundException('The team with this username does not exist.');
     }
 
-    return await this.teamRepository.deleteTeam(teamId);
+    return await this.teamRepository.deleteTeam(teamUsername);
   }
 
   async getOtherTeamsCoins() {

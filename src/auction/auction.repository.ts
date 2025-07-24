@@ -63,11 +63,11 @@ export class AuctionRepository {
     return await auction.save();
   }
 
-  async createBid(auctionId: string, teamId: string, price: number) {
+  async createBid(auctionId: string, teamUsername: string, price: number) {
     // eslint-disable-next-line new-cap
     const auctionHistory = new this.auctionHistoryModel({
       auction: auctionId,
-      team: teamId,
+      team: teamUsername,
       price,
     });
 

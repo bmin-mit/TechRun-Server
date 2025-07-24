@@ -27,11 +27,11 @@ export class TeamController {
     return await this.teamService.findAllTeams();
   }
 
-  @ApiOperation({ description: 'Get team by team codename', tags: ['Admin'] })
+  @ApiOperation({ description: 'Get team by team username', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Get('/:teamCodename')
-  async getTeamByName(@Param('teamCodename') teamCodename: string) {
-    return await this.teamService.findTeamByCodename(teamCodename);
+  @Get('/:teamUsername')
+  async getTeamByName(@Param('teamUsername') teamUsername: string) {
+    return await this.teamService.findTeamByUsername(teamUsername);
   }
 
   @ApiOperation({ description: 'Get team by team ID', tags: ['Admin'] })
@@ -43,9 +43,9 @@ export class TeamController {
 
   @ApiOperation({ description: 'Admin get team coins by team ID', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Get('/coins/:teamId')
-  async adminGetTeamCoins(@Param('teamId') teamId: string) {
-    return await this.teamService.getTeamCoins(teamId);
+  @Get('/coins/:teamUsername')
+  async adminGetTeamCoins(@Param('teamUsername') teamUsername: string) {
+    return await this.teamService.getTeamCoins(teamUsername);
   }
 
   @ApiOperation({ description: 'Get other teams\'s coins, only on the preparation of the auction' })
@@ -60,18 +60,18 @@ export class TeamController {
   @UseGuards(AuthGuard())
   @Get('/coins')
   async getTeamCoins(@Request() req: AuthRequest) {
-    return await this.teamService.getTeamCoins(req.user.team!._id!.toString());
+    return await this.teamService.getTeamCoins(req.user._id!.toString());
   }
 
   @ApiOperation({ description: 'Update team coins', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Get('/update-coins')
+  @Post('/update-coins')
   async updateTeamCoins(
-    @Query('teamId') teamId: string,
+    @Query('teamUsername') teamUsername: string,
     @Query('coins') coins: number,
     @Query('reason') reason: string,
   ) {
-    return await this.teamService.updateTeamCoins(teamId, coins, reason);
+    return await this.teamService.updateTeamCoins(teamUsername, coins, reason);
   }
 
   @ApiOperation({ description: 'Create a team', tags: ['Admin'] })
@@ -83,18 +83,18 @@ export class TeamController {
 
   @ApiOperation({ description: 'Update a team', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Post('/update/:teamId')
+  @Post('/update/:teamUsername')
   async updateTeam(
-    @Param('teamId') teamId: string,
+    @Param('teamUsername') teamUsername: string,
     @Body() teamData: UpdateTeamReqDto,
   ) {
-    return await this.teamService.updateTeam(teamId, teamData);
+    return await this.teamService.updateTeam(teamUsername, teamData);
   }
 
   @ApiOperation({ description: 'Delete a team', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Post('/delete/:teamId')
-  async deleteTeam(@Param('teamId') teamId: string) {
-    return await this.teamService.deleteTeam(teamId);
+  @Post('/delete/:teamUsername')
+  async deleteTeam(@Param('teamUsername') teamUsername: string) {
+    return await this.teamService.deleteTeam(teamUsername);
   }
 }

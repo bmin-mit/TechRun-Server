@@ -5,7 +5,6 @@ import { Station, StationSchema } from '@/schemas/station.schema';
 import { StationCheckinHistoryRepository } from '@/station/station-checkin-history.repository';
 import { StationRepository } from '@/station/station.repository';
 import { TeamModule } from '@/team/team.module';
-import { UserModule } from '@/user/user.module';
 import { StationController } from './station.controller';
 import { StationService } from './station.service';
 
@@ -17,7 +16,6 @@ import { StationService } from './station.service';
         { name: StationCheckinHistory.name, schema: StationCheckinHistorySchema },
       ],
     ),
-    UserModule,
     TeamModule,
   ],
   providers: [StationService, StationRepository, StationCheckinHistoryRepository],

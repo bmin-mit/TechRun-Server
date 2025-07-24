@@ -58,14 +58,13 @@ export class AuctionController {
   }
 
   @ApiOperation({ summary: 'Record auction bid' })
-  @UseGuards(AuthGuard(UserRoleEnum.LEADER))
+  @UseGuards(AuthGuard())
   @Post('/bid')
   recordAuctionBid(
-    @Query('item') itemId: string,
     @Query('bidPrice') bidPrice: number,
     @Request() req: AuthRequest,
   ) {
-    const bidderTeamId = req.user.team!._id!.toString();
-    return this.auctionService.recordAuctionBid(bidderTeamId, itemId, bidPrice);
+    const bidderTeamUsername = req.user._id!.toString();
+    return this.auctionService.recordAuctionBid(bidderTeamUsername, bidPrice);
   }
 }

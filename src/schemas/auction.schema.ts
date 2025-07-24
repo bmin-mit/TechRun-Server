@@ -2,14 +2,13 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose from 'mongoose';
 import { Base } from '@/schemas/base.schema';
-import { Item } from '@/schemas/item.schema';
 import { Team } from '@/schemas/team.schema';
 
 @Schema()
 export class Auction extends Base {
-  @ApiProperty({ description: 'The item being auctioned' })
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Item.name })
-  item: Item;
+  @ApiProperty({ description: 'The codename of the item being auctioned' })
+  @Prop({ required: true })
+  item: string;
 
   @ApiProperty({ description: 'The team that wins the item' })
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: Team.name })

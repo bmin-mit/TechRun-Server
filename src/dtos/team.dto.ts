@@ -7,8 +7,8 @@ export class OtherTeamsCoinsResDto {
   @ApiProperty({ description: 'The team name' })
   name: string;
 
-  @ApiProperty({ description: 'The team codename' })
-  codename: string;
+  @ApiProperty({ description: 'The team username' })
+  username: string;
 
   @ApiProperty({ description: 'The number of coins the team has' })
   coins: number;

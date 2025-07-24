@@ -2,14 +2,14 @@ import { CanActivate, ExecutionContext, Injectable, Logger, mixin, Type, Unautho
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
-import { UserRepository } from '@/user/user.repository';
+import { TeamRepository } from '@/team/team.repository';
 
 export function AuthGuard(...roles: UserRoleEnum[]): Type<CanActivate> {
   @Injectable()
   class AuthGuardMixin implements CanActivate {
     constructor(
       private readonly jwtService: JwtService,
-      private readonly userRepository: UserRepository,
+      private readonly teamRepository: TeamRepository,
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -22,7 +22,7 @@ export function AuthGuard(...roles: UserRoleEnum[]): Type<CanActivate> {
         }
 
         const tokenData: { sub: string } = await this.jwtService.verifyAsync(token);
-        const user = await this.userRepository.findUserById(tokenData.sub);
+        const user = await this.teamRepository.findTeamById(tokenData.sub);
 
         if (!user)
           throw new UnauthorizedException();

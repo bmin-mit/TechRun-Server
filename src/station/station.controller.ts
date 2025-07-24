@@ -45,35 +45,35 @@ export class StationController {
   @UseGuards(AuthGuard())
   @Get('/visited')
   async findVisitedStations(@Request() req: AuthRequest) {
-    return await this.stationService.findVisitedStationsByTeam(req.user.team!._id!.toString());
+    return await this.stationService.findVisitedStationsByTeam(req.user._id!.toString());
   }
 
   @ApiOperation({ description: 'Get the price of visiting the current station' })
   @UseGuards(AuthGuard())
   @Get('/visit-price/:id')
   async getVisitPrice(@Param('id') id: string, @Request() req: AuthRequest) {
-    return await this.stationService.getVisitPrice(id, req.user.team!._id!.toString());
+    return await this.stationService.getVisitPrice(id, req.user._id!.toString());
   }
 
   @ApiOperation({ description: 'Can the team visit the current station?' })
   @UseGuards(AuthGuard())
   @Get('/can-visit/:id')
   async canTeamVisitStation(@Param('id') id: string, @Request() req: AuthRequest) {
-    return await this.stationService.canTeamVisitStation(id, req.user.team!._id!.toString());
+    return await this.stationService.canTeamVisitStation(id, req.user._id!.toString());
   }
 
   @ApiOperation({ description: 'Mark a station as visited' })
-  @UseGuards(AuthGuard(UserRoleEnum.LEADER))
+  @UseGuards(AuthGuard())
   @Post('/visit/:id')
   async visitStation(@Param('id') id: string, @Request() req: AuthRequest) {
-    return await this.stationService.visitStation(id, req.user.team!._id!.toString());
+    return await this.stationService.visitStation(id, req.user._id!.toString());
   }
 
   @ApiOperation({ description: 'Admin get all stations that a team has visited', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Get('/visited/:teamId')
-  async findVisitedStationsByTeam(@Param('teamId') teamId: string) {
-    return await this.stationService.findVisitedStationsByTeam(teamId);
+  @Get('/visited/:teamUsername')
+  async findVisitedStationsByTeam(@Param('teamUsername') teamUsername: string) {
+    return await this.stationService.findVisitedStationsByTeam(teamUsername);
   }
 
   @ApiOperation({ description: 'Create a new station', tags: ['Admin'] })
