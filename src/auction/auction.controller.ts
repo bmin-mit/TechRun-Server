@@ -16,21 +16,21 @@ import { AuthGuard } from '@/guards/auth.guard';
 export class AuctionController {
   constructor(private readonly auctionService: AuctionService) {}
 
-  @ApiOperation({ summary: 'Get auction status', tags: ['Admin'] })
+  @ApiOperation({ description: 'Get auction status', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Get('/status')
   getAuctionStatus() {
     return this.auctionService.getAuctionStatus();
   }
 
-  @ApiOperation({ summary: 'Get auction history', tags: ['Admin'] })
+  @ApiOperation({ description: 'Get auction history', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Get('/history')
   getAuctionHistory() {
     return this.auctionService.getAuctionHistory();
   }
 
-  @ApiOperation({ summary: 'Create auction', tags: ['Admin'] })
+  @ApiOperation({ description: 'Create auction', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/create')
   createAuction(
@@ -41,14 +41,14 @@ export class AuctionController {
     return this.auctionService.createAuction(itemId, prepareDurationInSeconds, durationInSeconds);
   }
 
-  @ApiOperation({ summary: 'Get current auction' })
+  @ApiOperation({ description: 'Get current auction' })
   @UseGuards(AuthGuard())
   @Get('/current')
   getCurrentAuction() {
     return this.auctionService.getCurrentAuction();
   }
 
-  @ApiOperation({ summary: 'Get auction bids', tags: ['Admin'] })
+  @ApiOperation({ description: 'Get auction bids', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Get('/bids')
   getAuctionBids(
@@ -57,7 +57,7 @@ export class AuctionController {
     return this.auctionService.getTeamsLatestBids(auctionId);
   }
 
-  @ApiOperation({ summary: 'Record auction bid' })
+  @ApiOperation({ description: 'Record auction bid' })
   @UseGuards(AuthGuard())
   @Post('/bid')
   recordAuctionBid(
