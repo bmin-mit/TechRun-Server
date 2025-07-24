@@ -41,8 +41,12 @@ export class TeamService {
     return await this.teamRepository.findAllTeams();
   }
 
-  async getTeamCoins(teamUsername: string) {
-    return await this.teamRepository.getTeamCoins(teamUsername);
+  async getTeamCoins(teamId: string) {
+    const team = await this.teamRepository.findTeamById(teamId);
+    if (!team) {
+      throw new NotFoundException('The team with this ID does not exist.');
+    }
+    return await this.teamRepository.getTeamCoins(team.username);
   }
 
   async getTeamUnlockedPuzzles(teamId: string) {
