@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { CreateTeamReqDto, OtherTeamsCoinsResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
 import { CoinsHistory } from '@/schemas/coins-history.schema';
 import { Team } from '@/schemas/team.schema';
@@ -66,7 +67,7 @@ export class TeamRepository {
 
   async createTeam(teamData: CreateTeamReqDto): Promise<Team> {
     // eslint-disable-next-line new-cap
-    const newTeam = new this.teamModel(teamData);
+    const newTeam = new this.teamModel({ ...teamData, role: UserRoleEnum.PLAYER });
     return await newTeam.save();
   }
 
@@ -96,6 +97,18 @@ export class TeamRepository {
     if (!team.unlockedPuzzles.includes(unlockedIndex)) {
       team.unlockedPuzzles.push(unlockedIndex);
     }
+
+    return await team.save();
+  }
+
+  async createAdmin(adminPassword: string) {
+    // eslint-disable-next-line new-cap
+    const team = new this.teamModel({
+      username: 'admin',
+      name: 'Admin',
+      password: adminPassword,
+      role: UserRoleEnum.ADMIN,
+    });
 
     return await team.save();
   }

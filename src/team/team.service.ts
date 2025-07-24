@@ -1,14 +1,27 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuctionService } from '@/auction/auction.service';
 import { CreateTeamReqDto, UpdateTeamReqDto } from '@/dtos/team.dto';
 import { TeamRepository } from '@/team/team.repository';
 
 @Injectable()
 export class TeamService {
+  private readonly logger = new Logger(TeamService.name);
+
   constructor(
     private readonly teamRepository: TeamRepository,
     private readonly auctionService: AuctionService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    (async () => {
+      if (await this.findTeamByUsername('admin') === null) {
+        this.logger.warn('No user with username "admin" found. Creating an admin user.');
+        await this.teamRepository.createAdmin(
+          configService.get<string>('adminPassword') || 'admin',
+        );
+      }
+    })();
+  }
 
   async findTeamByUsername(teamCodename: string) {
     return await this.teamRepository.findTeamByUsername(teamCodename);
