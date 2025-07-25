@@ -26,14 +26,12 @@ export class StationController {
   constructor(private readonly stationService: StationService, private readonly teamService: TeamService) {}
 
   @ApiOperation({ description: 'Get all stations' })
-  //@UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/stations')
   async findAllStations() {
     return await this.stationService.findAllStations();
   }
 
   @ApiOperation({ description: 'Find station by codename' })
-  //@UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/codename/:codename')
   async findStationByCodename(@Param('codename') codename: string) {
     const station = await this.stationService.findStationByCodename(codename);
@@ -44,7 +42,6 @@ export class StationController {
   }
 
   @ApiOperation({ description: 'Find station by ID' })
-  //@UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/id/:id')
   async findStationById(@Param('id') id: string) {
     const station = await this.stationService.findStationById(id);
