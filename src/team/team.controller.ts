@@ -41,26 +41,12 @@ export class TeamController {
     return await this.teamService.findTeamById(teamId);
   }
 
-  @ApiOperation({ description: 'Admin get team coins by team ID', tags: ['Admin'] })
-  @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
-  @Get('/coins/:teamUsername')
-  async adminGetTeamCoins(@Param('teamUsername') teamUsername: string) {
-    return await this.teamService.getTeamCoins(teamUsername);
-  }
-
   @ApiOperation({ description: 'Get other teams\'s coins, only on the preparation of the auction' })
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/other-teams-coins')
   @ApiResponse({ status: 200, description: 'Returns other teams\' coins', type: [OtherTeamsCoinsResDto] })
   async getOtherTeamsCoins() {
     return await this.teamService.getOtherTeamsCoins();
-  }
-
-  @ApiOperation({ description: 'Get my team coins' })
-  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
-  @Get('/coins')
-  async getTeamCoins(@Request() req: AuthRequest) {
-    return await this.teamService.getTeamCoins(req.user._id!.toString());
   }
 
   @ApiOperation({ description: 'Update team coins', tags: ['Admin'] })
