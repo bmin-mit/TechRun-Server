@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { AuctionService } from '@/auction/auction.service';
 import { SkillCardEnum } from '@/common/enums/skill-card.enum';
 import { CreateTeamReqDto, MeResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
-import { StationService } from '@/station/station.service';
 import { TeamRepository } from '@/team/team.repository';
 
 @Injectable()
@@ -14,7 +13,6 @@ export class TeamService {
     private readonly teamRepository: TeamRepository,
     private readonly auctionService: AuctionService,
     private readonly configService: ConfigService,
-    private readonly stationService: StationService,
   ) {
     void (async () => {
       if (await this.findTeamByUsername('admin') === null) {
@@ -54,8 +52,7 @@ export class TeamService {
   }
 
   async updateTeamCoins(stationCodename: string, teamUsername: string, coins: number, reason: string) {
-    const station = await this.stationService.findStationByCodename(stationCodename);
-    return await this.teamRepository.updateTeamCoins(station!, teamUsername, coins, reason);
+    return await this.teamRepository.updateTeamCoins(stationCodename, teamUsername, coins, reason);
   }
 
   async unlockTeamPuzzle(teamUsername: string, unlockIndex: number) {

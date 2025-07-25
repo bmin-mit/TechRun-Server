@@ -35,7 +35,7 @@ export class Team extends Base {
   skillCards: Array<SkillCardEnum>;
 
   @Prop({ type: [String], default: [], enum: SkillCardEnum })
-  skillCardsUsing: Array<SkillCardEnum>;
+  usingSkillCards: Array<SkillCardEnum>;
 }
 
 export const TeamSchema = SchemaFactory.createForClass(Team);

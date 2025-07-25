@@ -6,6 +6,7 @@ import {
   SYSTEM_USE_ONLY_STATION_GROUP_NAME,
 } from '@/common/consts/station-group.const';
 import { SYSTEM_USE_ONLY_STATION_CODENAME, SYSTEM_USE_ONLY_STATION_NAME } from '@/common/consts/station.const';
+import { SkillCardEnum } from '@/common/enums/skill-card.enum';
 import { StationDifficultyEnum } from '@/common/enums/station-difficulty.enum';
 import { StationPositionEnum } from '@/common/enums/station-position.enum';
 import { CreateStationReqDto, UpdateStationReqDto } from '@/dtos/station.dto';
@@ -349,7 +350,7 @@ export class StationService {
     const station = await this.findStationById(stationId);
     const price = await this.getVisitPrice(stationId, teamUsername);
 
-    await this.teamRepository.updateTeamCoins(station!, teamUsername, -price, `Visiting station ${station!.name}`);
+    await this.teamRepository.updateTeamCoins(station!.codename, teamUsername, -price, `Visiting station ${station!.name}`);
     return await this.stationCheckinHistoryRepository.createCheckinHistory(station!, teamUsername);
   }
 
@@ -427,23 +428,29 @@ export class StationService {
       throw new NotFoundException('Team not found');
     }
 
-    const station = await this.stationRepository.findStationByCodename(stationCodename);
-    if (!station) {
-      throw new NotFoundException('Station not found');
-    }
-
     const stationGroupId = (await this.stationRepository.findStationByCodename(stationCodename))!._id!.toString();
 
     if (noCoinsUpdate) {
       return await this.stationRepository.unskip(teamId, stationGroupId);
     }
 
-    const teamUsername = (await this.teamRepository.findTeamById(teamId))!.username;
-    if ((await this.teamRepository.getTeamCoins(teamUsername) || 0) < this.stationRepository.getUnskipPrice()) {
+    const team = await this.teamRepository.findTeamById(teamId);
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+
+    let unskipPrice = this.stationRepository.getUnskipPrice();
+
+    if (team.usingSkillCards.includes(SkillCardEnum.HOI_SINH)) {
+      unskipPrice = 0;
+      await this.teamRepository.removeUsingSkillCard(teamId, SkillCardEnum.HOI_SINH);
+    }
+
+    if (team.coins < unskipPrice) {
       throw new ConflictException('Not enough coins to unskip this station group');
     }
 
-    await this.teamRepository.updateTeamCoins(station, teamUsername, -this.stationRepository.getUnskipPrice(), `Unskipping station group ${stationGroupId}`);
+    await this.teamRepository.updateTeamCoins(stationCodename, team.username, -unskipPrice, `Unskipping station group ${stationGroupId}`);
 
     return await this.stationRepository.unskip(teamId, stationGroupId);
   }
