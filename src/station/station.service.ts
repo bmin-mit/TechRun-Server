@@ -384,30 +384,30 @@ export class StationService {
     }
   }
 
-  async skip(teamId: string, stationGroupCodename: string) {
+  async skip(teamId: string, stationCodename: string) {
     if (!(await this.teamRepository.findTeamById(teamId))) {
       throw new NotFoundException('Team not found');
     }
 
-    if (!(await this.stationRepository.findStationByCodename(stationGroupCodename))) {
+    if (!(await this.stationRepository.findStationByCodename(stationCodename))) {
       throw new NotFoundException('Station group not found');
     }
 
-    const stationGroupId = (await this.stationRepository.findStationByCodename(stationGroupCodename))!._id!.toString();
+    const stationGroupId = (await this.stationRepository.findStationByCodename(stationCodename))!._id!.toString();
 
     return await this.stationRepository.skip(teamId, stationGroupId);
   }
 
-  async unskip(teamId: string, stationGroupCodename: string, noCoinsUpdate: boolean = false) {
+  async unskip(teamId: string, stationCodename: string, noCoinsUpdate: boolean = false) {
     if (!(await this.teamRepository.findTeamById(teamId))) {
       throw new NotFoundException('Team not found');
     }
 
-    if (!(await this.stationRepository.findStationByCodename(stationGroupCodename))) {
+    if (!(await this.stationRepository.findStationByCodename(stationCodename))) {
       throw new NotFoundException('Station group not found');
     }
 
-    const stationGroupId = (await this.stationRepository.findStationByCodename(stationGroupCodename))!._id!.toString();
+    const stationGroupId = (await this.stationRepository.findStationByCodename(stationCodename))!._id!.toString();
 
     if (noCoinsUpdate) {
       return await this.stationRepository.unskip(teamId, stationGroupId);
