@@ -13,17 +13,17 @@ export class StationRepository {
   ) {}
 
   async findStationByCodename(stationCodename: string): Promise<Station | null> {
-    return await this.stationModel.findOne({ codename: stationCodename }).exec();
+    return await this.stationModel.findOne({ codename: stationCodename }).populate('stationGroup').exec();
   }
 
   async findStationById(stationId: string): Promise<Station | null> {
     if (!mongoose.Types.ObjectId.isValid(stationId))
       throw new NotFoundException('Invalid station ID');
-    return await this.stationModel.findById(stationId).exec();
+    return await this.stationModel.findById(stationId).populate('stationGroup').exec();
   }
 
   async findAllStations(): Promise<Station[]> {
-    return await this.stationModel.find({}).sort({ name: 1 }).exec();
+    return await this.stationModel.find({}).sort({ codename: 1 }).populate('stationGroup').exec();
   }
 
   async createNewStation(stationData: Partial<Station>): Promise<Station> {
@@ -37,7 +37,7 @@ export class StationRepository {
       stationId,
       updateData,
       { new: true },
-    ).exec();
+    ).populate('stationGroup').exec();
   }
 
   async deleteStation(stationId: string): Promise<Station | null> {

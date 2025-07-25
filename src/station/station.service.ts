@@ -20,7 +20,7 @@ export class StationService {
     @InjectModel(StationGroup.name)
     private readonly stationGroupModel: Model<StationGroup>,
   ) {
-    (async () => {
+    void (async () => {
       await this.seedStationsAndStationGroups();
     })();
   }

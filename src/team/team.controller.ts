@@ -122,4 +122,15 @@ export class TeamController {
   async getMyTeam(@Request() req: AuthRequest) {
     return this.teamService.me(req.user._id!.toString());
   }
+
+  // @ApiOperation({ description: 'Use my team\'s item' })
+  // @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
+  // @Post('/use-item')
+  // async useItem(
+  //   @Request() req: AuthRequest,
+  //   @Body('itemId') itemId: string,
+  //   @Body('targetTeamUsername') targetTeamUsername: string,
+  // ) {
+  //
+  // }
 }
