@@ -19,7 +19,7 @@ export class StationRepository {
   async findStationById(stationId: string): Promise<Station | null> {
     if (!mongoose.Types.ObjectId.isValid(stationId))
       throw new NotFoundException('Invalid station ID');
-    return await this.stationModel.findById(stationId).populate('stationGroup').exec();
+    return await this.stationModel.findById(stationId).populate('stationGroup').select('-pin').exec();
   }
 
   async findAllStations(): Promise<Station[]> {
