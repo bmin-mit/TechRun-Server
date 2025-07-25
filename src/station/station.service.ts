@@ -49,11 +49,16 @@ export class StationService {
     return await this.stationRepository.deleteStation(stationId);
   }
 
-  async visitStation(stationId: string, teamUsername: string) {
-    if (!(await this.canTeamVisitStation(stationId, teamUsername))) {
+  async visitStation(stationId: string, teamId: string) {
+    if (!(await this.teamRepository.findTeamById(teamId))) {
+      throw new NotFoundException('Team not found');
+    }
+
+    if (!(await this.canTeamVisitStation(stationId, teamId))) {
       throw new ConflictException('Team cannot visit this station');
     }
 
+    const teamUsername = (await this.teamRepository.findTeamById(teamId))!.username;
     const station = await this.findStationById(stationId);
     const price = await this.getVisitPrice(stationId, teamUsername);
 
@@ -61,8 +66,8 @@ export class StationService {
     return await this.stationCheckinHistoryRepository.createCheckinHistory(stationId, teamUsername);
   }
 
-  async canTeamVisitStation(stationId: string, teamUsername: string) {
-    const team = await this.teamRepository.findTeamByUsername(teamUsername);
+  async canTeamVisitStation(stationId: string, teamId: string) {
+    const team = await this.teamRepository.findTeamById(teamId);
     const station = await this.findStationById(stationId);
 
     if (!team) {
@@ -73,28 +78,28 @@ export class StationService {
       throw new NotFoundException('Station not found');
     }
 
-    const price = await this.getVisitPrice(stationId, teamUsername);
+    const price = await this.getVisitPrice(stationId, teamId);
 
     if (team.coins < price) {
       return false; // Not enough coins to visit the station
     }
 
-    const visitedStations = await this.findVisitedStationsByTeam(teamUsername);
+    const visitedStations = await this.findVisitedStationsByTeam(teamId);
     return !visitedStations.some(station => station._id!.toString() === stationId);
   }
 
-  async findVisitedStationsByTeam(teamUsername: string) {
-    return await this.stationCheckinHistoryRepository.findVisitedStationsByTeam(teamUsername);
+  async findVisitedStationsByTeam(teamId: string) {
+    return await this.stationCheckinHistoryRepository.findVisitedStationsByTeam(teamId);
   }
 
-  async getVisitPrice(stationId: string, teamUsername: string) {
+  async getVisitPrice(stationId: string, teamId: string) {
     const station = await this.findStationById(stationId);
 
     if (!station) {
       throw new NotFoundException('Station not found');
     }
 
-    const visitedStations = await this.findVisitedStationsByTeam(teamUsername);
+    const visitedStations = await this.findVisitedStationsByTeam(teamId);
     const visitCount = visitedStations.filter(station => station._id!.toString() === stationId).length;
 
     // Must be greater than or equal to 0

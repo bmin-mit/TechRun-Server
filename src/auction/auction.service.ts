@@ -93,7 +93,7 @@ export class AuctionService {
     for (const loser of losers) {
       const teamCoins = await this.teamRepository.getTeamCoins(loser.username);
       if (teamCoins !== null) {
-        const coinsToDeduct = Math.floor(teamCoins * 0.5);
+        const coinsToDeduct = Math.ceil(teamCoins * 0.5);
         await this.teamRepository.updateTeamCoins(loser.username, teamCoins - coinsToDeduct, `Auction ${this.auctionId} loss`);
         this.logger.log(`Deducted ${coinsToDeduct} coins from team ${loser.username}`);
       }
