@@ -115,6 +115,10 @@ export class TeamService {
     return this.teamRepository.getTeamSkillCardHistory(teamUsername);
   }
 
+  async getAllSkillCardHistory() {
+    return this.teamRepository.getAllSkillCardHistory();
+  }
+
   async useSkillCard(teamId: string, skillCard: SkillCardEnum) {
     const team = await this.teamRepository.findTeamById(teamId);
     if (!team) {

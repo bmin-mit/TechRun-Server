@@ -154,6 +154,10 @@ export class TeamRepository {
     return await this.skillCardModel.find({ team: team._id }).sort({ createdAt: -1 }).exec();
   }
 
+  async getAllSkillCardHistory(): Promise<SkillCardHistory[]> {
+    return await this.skillCardModel.find({}).sort({ createdAt: -1 }).exec();
+  }
+
   async useSkillCard(teamId: string, skillCard: SkillCardEnum) {
     const team = await this.teamModel.findById(teamId).exec();
     if (!team) {

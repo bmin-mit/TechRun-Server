@@ -136,6 +136,11 @@ export class TeamController {
     return await this.teamService.getTeamSkillCardHistory(teamUsername);
   }
 
+  @ApiOperation({ description: 'Get my all skill card history' })
+  async getAllSkillCardHistory() {
+    return await this.teamService.getAllSkillCardHistory();
+  }
+
   @ApiOperation({ description: 'Use my team\'s skill card' })
   @ApiQuery({ name: 'skillCard', enum: SkillCardEnum, required: true, description: 'Skill card type to use' })
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
