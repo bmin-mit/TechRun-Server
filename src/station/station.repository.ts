@@ -61,4 +61,11 @@ export class StationRepository {
   async unskip(teamId: string, stationGroupId: string): Promise<void> {
     await this.skipModel.findOneAndDelete({ team: teamId, stationGroup: stationGroupId });
   }
+
+  isSkipped(teamId: string, stationId: string) {
+    return this.skipModel.exists({
+      team: teamId,
+      stationGroup: stationId,
+    }) !== null;
+  }
 }

@@ -78,6 +78,12 @@ export class StationService {
       throw new NotFoundException('Station not found');
     }
 
+    // Check if the team skipped this station and had not yet paid (if paid, the skip entry would be removed)
+    const isSkipped = this.stationRepository.isSkipped(teamId, station!.stationGroup._id!.toString());
+    if (isSkipped) {
+      throw new ConflictException('Team has skipped this station and cannot visit it again until unskipped (paid).');
+    }
+
     const price = await this.getVisitPrice(stationId, teamId);
 
     if (team.coins < price) {
