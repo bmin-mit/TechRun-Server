@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuctionService } from '@/auction/auction.service';
+import { SkillCardEnum } from '@/common/enums/skill-card.enum';
 import { CreateTeamReqDto, MeResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
 import { TeamRepository } from '@/team/team.repository';
 
@@ -112,5 +113,18 @@ export class TeamService {
 
   async getTeamSkillCardHistory(teamUsername: string) {
     return this.teamRepository.getTeamSkillCardHistory(teamUsername);
+  }
+
+  async useSkillCard(teamId: string, skillCard: SkillCardEnum) {
+    const team = await this.teamRepository.findTeamById(teamId);
+    if (!team) {
+      throw new NotFoundException('The team with this ID does not exist.');
+    }
+
+    if (!team.skillCards.includes(skillCard)) {
+      throw new ConflictException(`The team does not have the skill card: ${skillCard}`);
+    }
+
+    return await this.teamRepository.useSkillCard(teamId, skillCard);
   }
 }

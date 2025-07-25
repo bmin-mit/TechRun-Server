@@ -9,7 +9,8 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { SkillCardEnum } from '@/common/enums/skill-card.enum';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { AuthRequest } from '@/common/interfaces/auth-request.interface';
 import { CreateTeamReqDto, MeResDto, OtherTeamsCoinsResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
@@ -135,14 +136,14 @@ export class TeamController {
     return await this.teamService.getTeamSkillCardHistory(teamUsername);
   }
 
-  // @ApiOperation({ description: 'Use my team\'s item' })
-  // @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
-  // @Post('/use-item')
-  // async useItem(
-  //   @Request() req: AuthRequest,
-  //   @Body('itemId') itemId: string,
-  //   @Body('targetTeamUsername') targetTeamUsername: string,
-  // ) {
-  //
-  // }
+  @ApiOperation({ description: 'Use my team\'s skill card' })
+  @ApiQuery({ name: 'skillCard', enum: SkillCardEnum, required: true, description: 'Skill card type to use' })
+  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
+  @Post('/use-skill-card')
+  async useSkillCard(
+    @Request() req: AuthRequest,
+    @Query('skillCard') skillCard: SkillCardEnum,
+  ) {
+    return await this.teamService.useSkillCard(req.user._id!.toString(), skillCard);
+  }
 }

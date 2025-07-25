@@ -14,6 +14,7 @@ export class TeamRepository {
     @InjectModel(Team.name) private readonly teamModel: Model<Team>,
     @InjectModel(CoinsHistory.name) private readonly coinsHistoryModel: Model<CoinsHistory>,
     @InjectModel(SkillCardHistory.name) private readonly skillCardModel: Model<SkillCardHistory>,
+    @InjectModel(SkillCardHistory.name) private readonly skillCardHistoryModel: Model<SkillCardHistory>,
   ) {
   }
 
@@ -151,5 +152,57 @@ export class TeamRepository {
       return []; // Team not found
     }
     return await this.skillCardModel.find({ team: team._id }).sort({ createdAt: -1 }).exec();
+  }
+
+  async useSkillCard(teamId: string, skillCard: SkillCardEnum) {
+    const team = await this.teamModel.findById(teamId).exec();
+    if (!team) {
+      return null; // Team not found
+    }
+
+    if (!team.skillCards.includes(skillCard)) {
+      return null; // Skill card isn't found in this team
+    }
+
+    if (skillCard === SkillCardEnum.HOI_SINH) {
+      // Use the previously used skill card
+      const previousCard = (await this.skillCardHistoryModel
+        .find({ team: team._id })
+        .sort({ createdAt: -1 })
+        .exec())[0];
+
+      if (!previousCard) {
+        return null; // No previous skill card found
+      }
+
+      // Remove the current skill card from the team
+      team.skillCards = team.skillCards.filter(card => card !== skillCard);
+      await team.save();
+
+      // Log the usage of the previous skill card, and this card also
+      await this.skillCardHistoryModel.create({
+        team,
+        skillCard,
+        action: SkillCardActionEnum.USED,
+      });
+
+      // Return this for the client to render
+      return await this.skillCardHistoryModel.create({
+        team,
+        skillCard: previousCard.skillCard,
+        action: SkillCardActionEnum.USED,
+      });
+    }
+
+    // Remove the skill card from the team
+    team.skillCards = team.skillCards.filter(card => card !== skillCard);
+    await team.save();
+
+    // Log the usage of the skill card and return for the client to render
+    await this.skillCardHistoryModel.create({
+      team,
+      skillCard,
+      action: SkillCardActionEnum.USED,
+    });
   }
 }
