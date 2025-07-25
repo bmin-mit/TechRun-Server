@@ -23,6 +23,6 @@ import { TeamService } from './team.service';
   ],
   providers: [TeamService, TeamRepository],
   controllers: [TeamController],
-  exports: [TeamRepository],
+  exports: [TeamRepository, TeamService],
 })
 export class TeamModule {}

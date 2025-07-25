@@ -17,10 +17,11 @@ import { CreateStationReqDto, UpdateStationReqDto } from '@/dtos/station.dto';
 import { WithPinDto } from '@/dtos/with-pin.dto';
 import { AuthGuard } from '@/guards/auth.guard';
 import { StationService } from '@/station/station.service';
+import { TeamService } from '@/team/team.service';
 
 @Controller('station')
 export class StationController {
-  constructor(private readonly stationService: StationService) {}
+  constructor(private readonly stationService: StationService, private readonly teamService: TeamService) {}
 
   @ApiOperation({ description: 'Get all stations' })
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
@@ -75,7 +76,8 @@ export class StationController {
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Get('/visited/:teamUsername')
   async findVisitedStationsByTeam(@Param('teamUsername') teamUsername: string) {
-    return await this.stationService.findVisitedStationsByTeam(teamUsername);
+    const team = await this.teamService.findTeamByUsername(teamUsername);
+    return await this.stationService.findVisitedStationsByTeam(team!._id!.toString());
   }
 
   @ApiOperation({ description: 'Create a new station', tags: ['Admin'] })
