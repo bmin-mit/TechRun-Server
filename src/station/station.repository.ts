@@ -61,11 +61,12 @@ export class StationRepository {
     await this.skipModel.findOneAndDelete({ team: teamId, stationGroup: stationGroupId });
   }
 
-  isSkipped(teamId: string, stationId: string) {
-    return this.skipModel.exists({
+  async isSkipped(teamId: string, stationGroupId: string): Promise<boolean> {
+    const result = await this.skipModel.exists({
       team: teamId,
-      stationGroup: stationId,
-    }) !== null;
+      stationGroup: stationGroupId,
+    });
+    return result !== null;
   }
 
   async deleteAllStations() {

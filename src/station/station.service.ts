@@ -310,7 +310,7 @@ export class StationService {
     }
 
     // Check if the team skipped this station and had not yet paid (if paid, the skip entry would be removed)
-    const isSkipped = this.stationRepository.isSkipped(teamId, station!.stationGroup._id!.toString());
+    const isSkipped = await this.stationRepository.isSkipped(teamId, station!.stationGroup._id!.toString());
     if (isSkipped) {
       throw new ConflictException('Team has skipped this station and cannot visit it again until unskipped (paid).');
     }
