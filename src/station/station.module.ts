@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Skip, SkipSchema } from '@/schemas/skip.schema';
 import { StationCheckinHistory, StationCheckinHistorySchema } from '@/schemas/station-checkin-history.schema';
@@ -20,10 +20,10 @@ import { StationService } from './station.service';
         { name: Skip.name, schema: SkipSchema },
       ],
     ),
-    TeamModule,
+    forwardRef(() => TeamModule),
   ],
   providers: [StationService, StationRepository, StationCheckinHistoryRepository],
   controllers: [StationController],
-  exports: [StationRepository],
+  exports: [StationRepository, StationService],
 })
 export class StationModule {}

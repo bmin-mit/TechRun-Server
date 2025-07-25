@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { StationDifficultyEnum } from '@/common/enums/station-difficulty.enum';
 import { CreateStationReqDto, UpdateStationReqDto } from '@/dtos/station.dto';
+import { WithPinDto } from '@/dtos/with-pin.dto';
 import { StationGroup } from '@/schemas/station-group.schema';
 import { StationCheckinHistoryRepository } from '@/station/station-checkin-history.repository';
 import { StationRepository } from '@/station/station.repository';
@@ -63,6 +64,9 @@ export class StationService {
     // eslint-disable-next-line new-cap
     await this.stationGroupModel.insertMany(stationGroups.map(stationGroup => (new this.stationGroupModel(stationGroup))));
 
+    // 4-digit PINs for stations
+    const pinGenerator = () => Math.floor(1000 + Math.random() * 9000).toString();
+
     // Create stations
     const stations: CreateStationReqDto[] = [
       // blockchain
@@ -71,18 +75,21 @@ export class StationService {
         codename: 'blocktrain',
         difficulty: StationDifficultyEnum.HARD,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'blockchain' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Vòng lặp trái cây',
         codename: 'vong-lap-trai-cay',
         difficulty: StationDifficultyEnum.EASY,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'blockchain' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Hành động đẹp',
         codename: 'hanh-dong-dep',
         difficulty: StationDifficultyEnum.EASY,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'blockchain' }).exec())!,
+        pin: pinGenerator(),
       },
       // an-toan-mang
       {
@@ -90,18 +97,21 @@ export class StationService {
         codename: 'bao-ve-du-lieu',
         difficulty: StationDifficultyEnum.MEDIUM,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'an-toan-mang' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Giả danh cao thủ',
         codename: 'gia-danh-cao-thu',
         difficulty: StationDifficultyEnum.MEDIUM,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'an-toan-mang' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Mật khẩu thép',
         codename: 'mat-khau-thep',
         difficulty: StationDifficultyEnum.MEDIUM,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'an-toan-mang' }).exec())!,
+        pin: pinGenerator(),
       },
       // bigdata
       {
@@ -109,18 +119,21 @@ export class StationService {
         codename: 'ten-mien-de-thuong',
         difficulty: StationDifficultyEnum.EASY,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'bigdata' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Thám tử lật mặt',
         codename: 'tham-tu-lat-mat',
         difficulty: StationDifficultyEnum.HARD,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'bigdata' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Siêu trí tuệ',
         codename: 'sieu-tri-tue',
         difficulty: StationDifficultyEnum.MEDIUM,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'bigdata' }).exec())!,
+        pin: pinGenerator(),
       },
       // bi-an-so
       {
@@ -128,24 +141,28 @@ export class StationService {
         codename: 'giai-ma-2-lop',
         difficulty: StationDifficultyEnum.HARD,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'bi-an-so' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Mật mã toạ độ',
         codename: 'mat-ma-toa-do',
         difficulty: StationDifficultyEnum.HARD,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'bi-an-so' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Mảnh vỡ mật khẩu',
         codename: 'manh-vo-mat-khau',
         difficulty: StationDifficultyEnum.HARD,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'bi-an-so' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Chip gà vượt phố',
         codename: 'chip-ga-vuot-pho',
         difficulty: StationDifficultyEnum.HARD,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'bi-an-so' }).exec())!,
+        pin: pinGenerator(),
       },
       // minigame-station
       {
@@ -153,90 +170,105 @@ export class StationService {
         codename: 'giai-cuu-thanh-long',
         difficulty: StationDifficultyEnum.EASY,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Thử thách mặt mo',
         codename: 'thu-thach-mat-mo',
         difficulty: StationDifficultyEnum.EASY,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Paper pipeline',
         codename: 'paper-pipeline',
         difficulty: StationDifficultyEnum.MEDIUM,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: '7 ngày ấm áp',
         codename: '7-ngay-am-ap',
         difficulty: StationDifficultyEnum.EASY,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Xếp logo',
         codename: 'xep-logo',
         difficulty: StationDifficultyEnum.MEDIUM,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Đừng để bỏng rơi',
         codename: 'dung-de-bong-roi',
         difficulty: StationDifficultyEnum.MEDIUM,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Domino tử tế',
         codename: 'domino-tu-te',
         difficulty: StationDifficultyEnum.MEDIUM,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Lời chúc du hành',
         codename: 'loi-chuc-du-hanh',
         difficulty: StationDifficultyEnum.EASY,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Đồng lòng về đích',
         codename: 'dong-long-ve-dich',
         difficulty: StationDifficultyEnum.EASY,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Lầy lội léo lưỡi',
         codename: 'lay-loi-leo-luoi',
         difficulty: StationDifficultyEnum.MEDIUM,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Khéo miệng',
         codename: 'kheo-mieng',
         difficulty: StationDifficultyEnum.HARD,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Tia chớp tái chế',
         codename: 'tia-chop-tai-che',
         difficulty: StationDifficultyEnum.HARD,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Rác nào đúng gu?',
         codename: 'rac-nao-dung-gu',
         difficulty: StationDifficultyEnum.MEDIUM,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Xếp câu đố',
         codename: 'xep-cau-do',
         difficulty: StationDifficultyEnum.EASY,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
       {
         name: 'Bấm máy là quen',
         codename: 'bam-may-la-quen',
         difficulty: StationDifficultyEnum.EASY,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+        pin: pinGenerator(),
       },
     ];
 
@@ -318,7 +350,7 @@ export class StationService {
     const price = await this.getVisitPrice(stationId, teamId);
 
     if (team.coins < price) {
-      return false; // Not enough coins to visit the station
+      throw new ConflictException(`Not enough coins to visit this station. Required: ${price}, Available: ${team.coins}`);
     }
 
     const visitedStations = await this.findVisitedStationsByTeam(teamId);
@@ -366,7 +398,7 @@ export class StationService {
     return await this.stationRepository.skip(teamId, stationGroupId);
   }
 
-  async unskip(teamId: string, stationGroupCodename: string) {
+  async unskip(teamId: string, stationGroupCodename: string, noCoinsUpdate: boolean = false) {
     if (!(await this.teamRepository.findTeamById(teamId))) {
       throw new NotFoundException('Team not found');
     }
@@ -377,13 +409,30 @@ export class StationService {
 
     const stationGroupId = (await this.stationRepository.findStationByCodename(stationGroupCodename))!._id!.toString();
 
+    if (noCoinsUpdate) {
+      return await this.stationRepository.unskip(teamId, stationGroupId);
+    }
+
     const teamUsername = (await this.teamRepository.findTeamById(teamId))!.username;
-    if ((await this.teamRepository.getTeamCoins(teamUsername) || 0) < await this.stationRepository.getUnskipPrice()) {
+    if ((await this.teamRepository.getTeamCoins(teamUsername) || 0) < this.stationRepository.getUnskipPrice()) {
       throw new ConflictException('Not enough coins to unskip this station group');
     }
 
-    await this.teamRepository.updateTeamCoins(teamUsername, -await this.stationRepository.getUnskipPrice(), `Unskipping station group ${stationGroupId}`);
+    await this.teamRepository.updateTeamCoins(teamUsername, -this.stationRepository.getUnskipPrice(), `Unskipping station group ${stationGroupId}`);
 
     return await this.stationRepository.unskip(teamId, stationGroupId);
+  }
+
+  async verifyPin(body: WithPinDto) {
+    if (!body.stationCodename || !body.pin) {
+      return false;
+    }
+
+    const station = await this.stationRepository.findStationByCodename(body.stationCodename);
+    if (!station) {
+      return false;
+    }
+
+    return station.pin === body.pin;
   }
 }

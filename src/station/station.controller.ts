@@ -7,12 +7,14 @@ import {
   Post,
   Put,
   Request,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { AuthRequest } from '@/common/interfaces/auth-request.interface';
 import { CreateStationReqDto, UpdateStationReqDto } from '@/dtos/station.dto';
+import { WithPinDto } from '@/dtos/with-pin.dto';
 import { AuthGuard } from '@/guards/auth.guard';
 import { StationService } from '@/station/station.service';
 
@@ -97,23 +99,31 @@ export class StationController {
     return await this.stationService.deleteStation(id);
   }
 
-  @ApiOperation({ description: 'Skip a station', tags: ['Admin'] })
-  @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
+  @ApiOperation({ description: 'Skip a station', tags: ['WithPin'] })
   @Post('/skip/:teamId/:stationGroupId')
   async skipStation(
     @Param('teamId') teamId: string,
     @Param('stationGroupId') stationGroupId: string,
+    @Body() body: WithPinDto,
   ) {
+    if (!(await this.stationService.verifyPin(body))) {
+      throw new UnauthorizedException('Invalid PIN code');
+    }
     return await this.stationService.skip(teamId, stationGroupId);
   }
 
-  @ApiOperation({ description: 'Unskip a station', tags: ['Admin'] })
+  @ApiOperation({ description: 'Unskip a station', tags: ['WithPin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/unskip/:teamId/:stationGroupId')
   async unskipStation(
     @Param('teamId') teamId: string,
     @Param('stationGroupId') stationGroupId: string,
+    @Param('noCoinsUpdate') noCoinsUpdate: boolean = false,
+    @Body() body: WithPinDto,
   ) {
-    return await this.stationService.unskip(teamId, stationGroupId);
+    if (!(await this.stationService.verifyPin(body))) {
+      throw new UnauthorizedException('Invalid PIN code');
+    }
+    return await this.stationService.unskip(teamId, stationGroupId, noCoinsUpdate);
   }
 }

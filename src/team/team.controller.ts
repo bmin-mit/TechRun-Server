@@ -6,18 +6,24 @@ import {
   Post,
   Query,
   Request,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { AuthRequest } from '@/common/interfaces/auth-request.interface';
 import { CreateTeamReqDto, MeResDto, OtherTeamsCoinsResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
+import { WithPinDto } from '@/dtos/with-pin.dto';
 import { AuthGuard } from '@/guards/auth.guard';
+import { StationService } from '@/station/station.service';
 import { TeamService } from '@/team/team.service';
 
 @Controller('team')
 export class TeamController {
-  constructor(private readonly teamService: TeamService) {
+  constructor(
+    private readonly teamService: TeamService,
+    private readonly stationService: StationService,
+  ) {
   }
 
   @ApiOperation({ description: 'Get all teams', tags: ['Admin'] })
@@ -49,14 +55,18 @@ export class TeamController {
     return await this.teamService.getOtherTeamsCoins();
   }
 
-  @ApiOperation({ description: 'Update team coins', tags: ['Admin'] })
+  @ApiOperation({ description: 'Update team coins', tags: ['WithPin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/update-coins')
   async updateTeamCoins(
     @Query('teamUsername') teamUsername: string,
     @Query('coins') coins: number,
     @Query('reason') reason: string,
+    @Body() body: WithPinDto,
   ) {
+    if (!(await this.stationService.verifyPin(body))) {
+      throw new UnauthorizedException('Invalid PIN code');
+    }
     return await this.teamService.updateTeamCoins(teamUsername, coins, reason);
   }
 
@@ -91,13 +101,17 @@ export class TeamController {
     return await this.teamService.getTeamUnlockedPuzzles(req.user._id!.toString());
   }
 
-  @ApiOperation({ description: 'Unlock a puzzle for the team', tags: ['Admin'] })
+  @ApiOperation({ description: 'Unlock a puzzle for the team', tags: ['WithPin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/unlock-puzzle')
   async unlockTeamPuzzle(
     @Query('teamUsername') teamUsername: string,
     @Query('unlockIndex') unlockIndex: number,
+    @Body() body: WithPinDto,
   ) {
+    if (!(await this.stationService.verifyPin(body))) {
+      throw new UnauthorizedException('Invalid PIN code');
+    }
     return await this.teamService.unlockTeamPuzzle(teamUsername, unlockIndex);
   }
 

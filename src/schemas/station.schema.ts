@@ -22,6 +22,10 @@ export class Station extends Base {
   @ApiProperty({ description: 'The station group of this station' })
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: StationGroup.name })
   stationGroup: StationGroup;
+
+  @ApiProperty({ description: 'The station\'s 4-digit PIN code' })
+  @Prop({ required: true })
+  pin: string;
 }
 
 export const StationSchema = SchemaFactory.createForClass(Station);
