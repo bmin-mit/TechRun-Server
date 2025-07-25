@@ -277,7 +277,7 @@ export class StationService {
   }
 
   async findStationByCodename(stationCodename: string) {
-    return await this.stationRepository.findStationByCodename(stationCodename);
+    return await this.stationRepository.findStationByCodename(stationCodename, false);
   }
 
   async findStationById(stationId: string) {
@@ -428,7 +428,7 @@ export class StationService {
       return false;
     }
 
-    const station = await this.stationRepository.findStationByCodename(body.stationCodename);
+    const station = await this.stationRepository.findStationByCodename(body.stationCodename, true);
     if (!station) {
       return false;
     }

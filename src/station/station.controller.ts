@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -33,15 +34,23 @@ export class StationController {
   @ApiOperation({ description: 'Find station by codename' })
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/codename/:codename')
-  async findStationByName(@Param('codename') codename: string) {
-    return await this.stationService.findStationByCodename(codename);
+  async findStationByCodename(@Param('codename') codename: string) {
+    const station = await this.stationService.findStationByCodename(codename);
+    if (!station) {
+      throw new NotFoundException(`Station with codename "${codename}" not found`);
+    }
+    return station;
   }
 
   @ApiOperation({ description: 'Find station by ID' })
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/id/:id')
   async findStationById(@Param('id') id: string) {
-    return await this.stationService.findStationById(id);
+    const station = await this.stationService.findStationById(id);
+    if (!station) {
+      throw new NotFoundException(`Station with ID "${id}" not found`);
+    }
+    return station;
   }
 
   @ApiOperation({ description: 'Get all stations that my team has visited' })

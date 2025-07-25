@@ -109,4 +109,8 @@ export class TeamService {
       skillCards: team.skillCards,
     };
   }
+
+  async getTeamSkillCardHistory(teamUsername: string) {
+    return this.teamRepository.getTeamSkillCardHistory(teamUsername);
+  }
 }

@@ -144,4 +144,12 @@ export class TeamRepository {
 
     return await team.save();
   }
+
+  async getTeamSkillCardHistory(teamUsername: string): Promise<SkillCardHistory[]> {
+    const team = await this.teamModel.findOne({ username: teamUsername }).exec();
+    if (!team) {
+      return []; // Team not found
+    }
+    return await this.skillCardModel.find({ team: team._id }).sort({ createdAt: -1 }).exec();
+  }
 }

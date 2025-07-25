@@ -123,6 +123,18 @@ export class TeamController {
     return this.teamService.me(req.user._id!.toString());
   }
 
+  @ApiOperation({ description: 'Get team\'s skill card history', tags: ['WithPin'] })
+  @Post('/skill-card-history/:teamUsername')
+  async getTeamSkillCardHistory(
+    @Param('teamUsername') teamUsername: string,
+    @Body() body: WithPinDto,
+  ) {
+    if (!(await this.stationService.verifyPin(body))) {
+      throw new UnauthorizedException('Invalid PIN code');
+    }
+    return await this.teamService.getTeamSkillCardHistory(teamUsername);
+  }
+
   // @ApiOperation({ description: 'Use my team\'s item' })
   // @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   // @Post('/use-item')

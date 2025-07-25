@@ -12,8 +12,8 @@ export class StationRepository {
     @InjectModel(Skip.name) private readonly skipModel: Model<Skip>,
   ) {}
 
-  async findStationByCodename(stationCodename: string): Promise<Station | null> {
-    return await this.stationModel.findOne({ codename: stationCodename }).populate('stationGroup').exec();
+  async findStationByCodename(stationCodename: string, noExcludePin: boolean = false): Promise<Station | null> {
+    return await this.stationModel.findOne({ codename: stationCodename }).populate('stationGroup').select(noExcludePin ? '' : '-pin').exec();
   }
 
   async findStationById(stationId: string): Promise<Station | null> {
@@ -23,7 +23,7 @@ export class StationRepository {
   }
 
   async findAllStations(): Promise<Station[]> {
-    return await this.stationModel.find({}).sort({ codename: 1 }).populate('stationGroup').exec();
+    return await this.stationModel.find({}).sort({ codename: 1 }).populate('stationGroup').select('-pin').exec();
   }
 
   async createNewStation(stationData: Partial<Station>): Promise<Station> {

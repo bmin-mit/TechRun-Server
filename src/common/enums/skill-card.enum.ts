@@ -1,10 +1,11 @@
 export enum SkillCardEnum {
-  TUONG_LUA = 'tuong_lua',
   LAG_MAY = 'lag_may',
   DONG_BO = 'dong_bo',
-  GIAO_DICH_UU_TIEN = 'giao_dich_uu_tien',
-  ControlC = 'control_c',
-  GIAO_DICH_BAT_BUOC = 'giao_dich_bat_buoc',
+  NGOI_SAO_HI_VONG = 'ngoi_sao_hi_vong',
+  TANG_GOI_Y = 'tang_goi_y',
+  GAMBLE = 'gamble',
+  HOI_SINH = 'hoi_sinh',
+  VUOT_TRAM_PHU = 'vuot_tram_phu',
 }
 
 export enum SkillCardActionEnum {
