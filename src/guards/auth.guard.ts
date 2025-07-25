@@ -27,7 +27,12 @@ export function AuthGuard(...roles: UserRoleEnum[]): Type<CanActivate> {
         if (!user)
           throw new UnauthorizedException('User not found');
 
-        if (!roles || roles.length === 0 || (roles.length > 0 && roles.includes(user.role as UserRoleEnum))) {
+        // Admins are always allowed
+        if (!roles
+          || roles.length === 0
+          || (roles.length > 0 && roles.includes(user.role as UserRoleEnum))
+          || user.role === UserRoleEnum.ADMIN
+        ) {
           request.user = user;
           return true;
         }
