@@ -8,8 +8,8 @@ export class StationCheckinHistoryRepository {
   constructor(@InjectModel(StationCheckinHistory.name) private readonly stationCheckinHistoryModel: Model<StationCheckinHistory>) {
   }
 
-  async findVisitedStationsByTeam(teamId: string): Promise<StationCheckinHistory[]> {
-    return await this.stationCheckinHistoryModel.find({ team: teamId }).sort({ createdAt: -1 }).exec();
+  async findVisitedStationsByTeam(teamUsername: string): Promise<StationCheckinHistory[]> {
+    return await this.stationCheckinHistoryModel.find({ team: teamUsername }).sort({ createdAt: -1 }).exec();
   }
 
   async createCheckinHistory(stationId: string, teamUsername: string) {

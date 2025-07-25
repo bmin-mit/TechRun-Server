@@ -357,8 +357,8 @@ export class StationService {
     return !visitedStations.some(station => station._id!.toString() === stationId);
   }
 
-  async findVisitedStationsByTeam(teamId: string) {
-    return await this.stationCheckinHistoryRepository.findVisitedStationsByTeam(teamId);
+  async findVisitedStationsByTeam(teamUsername: string) {
+    return await this.stationCheckinHistoryRepository.findVisitedStationsByTeam(teamUsername);
   }
 
   async getVisitPrice(stationId: string, teamId: string) {

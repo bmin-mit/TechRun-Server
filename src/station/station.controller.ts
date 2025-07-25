@@ -58,7 +58,7 @@ export class StationController {
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/visited')
   async findVisitedStations(@Request() req: AuthRequest) {
-    return await this.stationService.findVisitedStationsByTeam(req.user._id!.toString());
+    return await this.stationService.findVisitedStationsByTeam(req.user.username!.toString());
   }
 
   @ApiOperation({ description: 'Get the price of visiting the current station' })
