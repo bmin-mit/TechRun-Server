@@ -13,8 +13,8 @@ export class StationService {
     private readonly teamRepository: TeamRepository,
   ) {}
 
-  async findStationByName(stationName: string) {
-    return await this.stationRepository.findStationByName(stationName);
+  async findStationByCodename(stationCodename: string) {
+    return await this.stationRepository.findStationByCodename(stationCodename);
   }
 
   async findStationById(stationId: string) {
@@ -26,7 +26,7 @@ export class StationService {
   }
 
   async createNewStation(stationData: CreateStationReqDto) {
-    if (await this.findStationByName(stationData.name)) {
+    if (await this.findStationByCodename(stationData.name)) {
       throw new ConflictException('Station with this name already exists');
     }
 
@@ -113,5 +113,40 @@ export class StationService {
       default:
         throw new NotFoundException('Station difficulty not found');
     }
+  }
+
+  async skip(teamId: string, stationGroupCodename: string) {
+    if (!(await this.teamRepository.findTeamById(teamId))) {
+      throw new NotFoundException('Team not found');
+    }
+
+    if (!(await this.stationRepository.findStationByCodename(stationGroupCodename))) {
+      throw new NotFoundException('Station group not found');
+    }
+
+    const stationGroupId = (await this.stationRepository.findStationByCodename(stationGroupCodename))!._id!.toString();
+
+    return await this.stationRepository.skip(teamId, stationGroupId);
+  }
+
+  async unskip(teamId: string, stationGroupCodename: string) {
+    if (!(await this.teamRepository.findTeamById(teamId))) {
+      throw new NotFoundException('Team not found');
+    }
+
+    if (!(await this.stationRepository.findStationByCodename(stationGroupCodename))) {
+      throw new NotFoundException('Station group not found');
+    }
+
+    const stationGroupId = (await this.stationRepository.findStationByCodename(stationGroupCodename))!._id!.toString();
+
+    const teamUsername = (await this.teamRepository.findTeamById(teamId))!.username;
+    if ((await this.teamRepository.getTeamCoins(teamUsername) || 0) < await this.stationRepository.getUnskipPrice(stationGroupId)) {
+      throw new ConflictException('Not enough coins to unskip this station group');
+    }
+
+    await this.teamRepository.updateTeamCoins(teamUsername, -await this.stationRepository.getUnskipPrice(stationGroupId), `Unskipping station group ${stationGroupId}`);
+
+    return await this.stationRepository.unskip(teamId, stationGroupId);
   }
 }

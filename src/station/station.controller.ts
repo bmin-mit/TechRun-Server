@@ -27,11 +27,11 @@ export class StationController {
     return await this.stationService.findAllStations();
   }
 
-  @ApiOperation({ description: 'Find station by name' })
+  @ApiOperation({ description: 'Find station by codename' })
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
-  @Get('/name/:name')
-  async findStationByName(@Param('name') name: string) {
-    return await this.stationService.findStationByName(name);
+  @Get('/codename/:codename')
+  async findStationByName(@Param('codename') codename: string) {
+    return await this.stationService.findStationByCodename(codename);
   }
 
   @ApiOperation({ description: 'Find station by ID' })
@@ -95,5 +95,25 @@ export class StationController {
   @Delete('/delete/:id')
   async deleteStation(@Param('id') id: string) {
     return await this.stationService.deleteStation(id);
+  }
+
+  @ApiOperation({ description: 'Skip a station', tags: ['Admin'] })
+  @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
+  @Post('/skip/:teamId/:stationGroupId')
+  async skipStation(
+    @Param('teamId') teamId: string,
+    @Param('stationGroupId') stationGroupId: string,
+  ) {
+    return await this.stationService.skip(teamId, stationGroupId);
+  }
+
+  @ApiOperation({ description: 'Unskip a station', tags: ['Admin'] })
+  @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
+  @Post('/unskip/:teamId/:stationGroupId')
+  async unskipStation(
+    @Param('teamId') teamId: string,
+    @Param('stationGroupId') stationGroupId: string,
+  ) {
+    return await this.stationService.unskip(teamId, stationGroupId);
   }
 }
