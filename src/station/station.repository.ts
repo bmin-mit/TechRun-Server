@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { CreateStationReqDto } from '@/dtos/station.dto';
 import { Skip } from '@/schemas/skip.schema';
 import { Station } from '@/schemas/station.schema';
 
@@ -43,10 +44,8 @@ export class StationRepository {
     return await this.stationModel.findByIdAndDelete(stationId).exec();
   }
 
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  async getUnskipPrice(stationId: string): Promise<number> {
-    // TODO: Implement logic to calculate the unskip price based on station properties or other criteria.
-    return 0;
+  getUnskipPrice(): number {
+    return 30;
   }
 
   async skip(teamId: string, stationGroupId: string): Promise<Skip> {
@@ -67,5 +66,13 @@ export class StationRepository {
       team: teamId,
       stationGroup: stationId,
     }) !== null;
+  }
+
+  async deleteAllStations() {
+    return await this.stationModel.deleteMany({}).exec();
+  }
+
+  async createManyStations(stations: CreateStationReqDto[]) {
+    return await this.stationModel.insertMany(stations);
   }
 }

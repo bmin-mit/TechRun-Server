@@ -1,10 +1,11 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose from 'mongoose';
 import { Base } from '@/schemas/base.schema';
 import { StationGroup } from '@/schemas/station-group.schema';
 import { Team } from '@/schemas/team.schema';
 
+@Schema()
 export class Skip extends Base {
   @ApiProperty({ description: 'The station group to skip' })
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: StationGroup.name })

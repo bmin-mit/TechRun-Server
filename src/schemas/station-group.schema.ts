@@ -1,7 +1,8 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Base } from '@/schemas/base.schema';
 
+@Schema()
 export class StationGroup extends Base {
   @ApiProperty({ description: 'The name of the station group' })
   @Prop({ required: true })

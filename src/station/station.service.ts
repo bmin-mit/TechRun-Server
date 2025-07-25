@@ -1,17 +1,248 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { StationDifficultyEnum } from '@/common/enums/station-difficulty.enum';
 import { CreateStationReqDto, UpdateStationReqDto } from '@/dtos/station.dto';
+import { StationGroup } from '@/schemas/station-group.schema';
 import { StationCheckinHistoryRepository } from '@/station/station-checkin-history.repository';
 import { StationRepository } from '@/station/station.repository';
 import { TeamRepository } from '@/team/team.repository';
 
 @Injectable()
 export class StationService {
+  private readonly logger = new Logger(StationService.name);
+
   constructor(
     private readonly stationRepository: StationRepository,
     private readonly stationCheckinHistoryRepository: StationCheckinHistoryRepository,
     private readonly teamRepository: TeamRepository,
-  ) {}
+    @InjectModel(StationGroup.name)
+    private readonly stationGroupModel: Model<StationGroup>,
+  ) {
+    (async () => {
+      await this.seedStationsAndStationGroups();
+    })();
+  }
+
+  async seedStationsAndStationGroups() {
+    // Check if the database is already seeded
+    const existingGroups = await this.stationGroupModel.countDocuments().exec();
+    if (existingGroups > 0) {
+      this.logger.log('Database already seeded with station groups and stations.');
+      return; // Exit if already seeded
+    }
+
+    // Clear station groups and stations
+    await this.stationGroupModel.deleteMany({}).exec();
+    await this.stationRepository.deleteAllStations();
+
+    // Create station groups
+    const stationGroups: StationGroup[] = [
+      {
+        name: 'Blockchain',
+        codename: 'blockchain',
+      },
+      {
+        name: 'An toàn mạng',
+        codename: 'an-toan-mang',
+      },
+      {
+        name: 'Bigdata',
+        codename: 'bigdata',
+      },
+      {
+        name: 'Bí ẩn số',
+        codename: 'bi-an-so',
+      },
+      {
+        name: 'Minigame station',
+        codename: 'minigame-station',
+      },
+    ];
+
+    // eslint-disable-next-line new-cap
+    await this.stationGroupModel.insertMany(stationGroups.map(stationGroup => (new this.stationGroupModel(stationGroup))));
+
+    // Create stations
+    const stations: CreateStationReqDto[] = [
+      // blockchain
+      {
+        name: 'Block "Train"',
+        codename: 'blocktrain',
+        difficulty: StationDifficultyEnum.HARD,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'blockchain' }).exec())!,
+      },
+      {
+        name: 'Vòng lặp trái cây',
+        codename: 'vong-lap-trai-cay',
+        difficulty: StationDifficultyEnum.EASY,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'blockchain' }).exec())!,
+      },
+      {
+        name: 'Hành động đẹp',
+        codename: 'hanh-dong-dep',
+        difficulty: StationDifficultyEnum.EASY,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'blockchain' }).exec())!,
+      },
+      // an-toan-mang
+      {
+        name: 'Bảo vệ dữ liệu',
+        codename: 'bao-ve-du-lieu',
+        difficulty: StationDifficultyEnum.MEDIUM,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'an-toan-mang' }).exec())!,
+      },
+      {
+        name: 'Giả danh cao thủ',
+        codename: 'gia-danh-cao-thu',
+        difficulty: StationDifficultyEnum.MEDIUM,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'an-toan-mang' }).exec())!,
+      },
+      {
+        name: 'Mật khẩu thép',
+        codename: 'mat-khau-thep',
+        difficulty: StationDifficultyEnum.MEDIUM,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'an-toan-mang' }).exec())!,
+      },
+      // bigdata
+      {
+        name: 'Tên miền dễ thương',
+        codename: 'ten-mien-de-thuong',
+        difficulty: StationDifficultyEnum.EASY,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'bigdata' }).exec())!,
+      },
+      {
+        name: 'Thám tử lật mặt',
+        codename: 'tham-tu-lat-mat',
+        difficulty: StationDifficultyEnum.HARD,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'bigdata' }).exec())!,
+      },
+      {
+        name: 'Siêu trí tuệ',
+        codename: 'sieu-tri-tue',
+        difficulty: StationDifficultyEnum.MEDIUM,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'bigdata' }).exec())!,
+      },
+      // bi-an-so
+      {
+        name: 'Giải mã 2 lớp',
+        codename: 'giai-ma-2-lop',
+        difficulty: StationDifficultyEnum.HARD,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'bi-an-so' }).exec())!,
+      },
+      {
+        name: 'Mật mã toạ độ',
+        codename: 'mat-ma-toa-do',
+        difficulty: StationDifficultyEnum.HARD,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'bi-an-so' }).exec())!,
+      },
+      {
+        name: 'Mảnh vỡ mật khẩu',
+        codename: 'manh-vo-mat-khau',
+        difficulty: StationDifficultyEnum.HARD,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'bi-an-so' }).exec())!,
+      },
+      {
+        name: 'Chip gà vượt phố',
+        codename: 'chip-ga-vuot-pho',
+        difficulty: StationDifficultyEnum.HARD,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'bi-an-so' }).exec())!,
+      },
+      // minigame-station
+      {
+        name: 'Giải cứu thanh long',
+        codename: 'giai-cuu-thanh-long',
+        difficulty: StationDifficultyEnum.EASY,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Thử thách mặt mo',
+        codename: 'thu-thach-mat-mo',
+        difficulty: StationDifficultyEnum.EASY,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Paper pipeline',
+        codename: 'paper-pipeline',
+        difficulty: StationDifficultyEnum.MEDIUM,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: '7 ngày ấm áp',
+        codename: '7-ngay-am-ap',
+        difficulty: StationDifficultyEnum.EASY,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Xếp logo',
+        codename: 'xep-logo',
+        difficulty: StationDifficultyEnum.MEDIUM,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Đừng để bỏng rơi',
+        codename: 'dung-de-bong-roi',
+        difficulty: StationDifficultyEnum.MEDIUM,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Domino tử tế',
+        codename: 'domino-tu-te',
+        difficulty: StationDifficultyEnum.MEDIUM,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Lời chúc du hành',
+        codename: 'loi-chuc-du-hanh',
+        difficulty: StationDifficultyEnum.EASY,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Đồng lòng về đích',
+        codename: 'dong-long-ve-dich',
+        difficulty: StationDifficultyEnum.EASY,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Lầy lội léo lưỡi',
+        codename: 'lay-loi-leo-luoi',
+        difficulty: StationDifficultyEnum.MEDIUM,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Khéo miệng',
+        codename: 'kheo-mieng',
+        difficulty: StationDifficultyEnum.HARD,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Tia chớp tái chế',
+        codename: 'tia-chop-tai-che',
+        difficulty: StationDifficultyEnum.HARD,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Rác nào đúng gu?',
+        codename: 'rac-nao-dung-gu',
+        difficulty: StationDifficultyEnum.MEDIUM,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Xếp câu đố',
+        codename: 'xep-cau-do',
+        difficulty: StationDifficultyEnum.EASY,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+      {
+        name: 'Bấm máy là quen',
+        codename: 'bam-may-la-quen',
+        difficulty: StationDifficultyEnum.EASY,
+        stationGroup: (await this.stationGroupModel.findOne({ codename: 'minigame-station' }).exec())!,
+      },
+    ];
+
+    await this.stationRepository.createManyStations(stations);
+    this.logger.log('Database seeded with station groups and stations.');
+  }
 
   async findStationByCodename(stationCodename: string) {
     return await this.stationRepository.findStationByCodename(stationCodename);
@@ -147,11 +378,11 @@ export class StationService {
     const stationGroupId = (await this.stationRepository.findStationByCodename(stationGroupCodename))!._id!.toString();
 
     const teamUsername = (await this.teamRepository.findTeamById(teamId))!.username;
-    if ((await this.teamRepository.getTeamCoins(teamUsername) || 0) < await this.stationRepository.getUnskipPrice(stationGroupId)) {
+    if ((await this.teamRepository.getTeamCoins(teamUsername) || 0) < await this.stationRepository.getUnskipPrice()) {
       throw new ConflictException('Not enough coins to unskip this station group');
     }
 
-    await this.teamRepository.updateTeamCoins(teamUsername, -await this.stationRepository.getUnskipPrice(stationGroupId), `Unskipping station group ${stationGroupId}`);
+    await this.teamRepository.updateTeamCoins(teamUsername, -await this.stationRepository.getUnskipPrice(), `Unskipping station group ${stationGroupId}`);
 
     return await this.stationRepository.unskip(teamId, stationGroupId);
   }

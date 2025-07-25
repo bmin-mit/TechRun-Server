@@ -15,10 +15,6 @@ export class Station extends Base {
   @Prop({ required: true, unique: true, index: true })
   codename: string;
 
-  @ApiProperty({ description: 'The description of the station' })
-  @Prop({ required: true })
-  description: string;
-
   @ApiProperty({ description: 'The difficulty of the station', enum: StationDifficultyEnum })
   @Prop({ required: true, type: String, enum: StationDifficultyEnum, default: StationDifficultyEnum.EASY })
   difficulty: StationDifficultyEnum;

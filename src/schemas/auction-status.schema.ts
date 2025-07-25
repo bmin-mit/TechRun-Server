@@ -1,4 +1,4 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose from 'mongoose';
 import { Auction } from '@/schemas/auction.schema';
@@ -7,6 +7,7 @@ import { Team } from '@/schemas/team.schema';
 
 // This schema is similar to AuctionHistorySchema, but it is used for the
 // current auction status to simplify the logic.
+@Schema()
 export class AuctionStatus extends Base {
   @ApiProperty({ description: 'The auction' })
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Auction.name })
