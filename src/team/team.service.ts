@@ -14,7 +14,7 @@ export class TeamService {
     private readonly auctionService: AuctionService,
     private readonly configService: ConfigService,
   ) {
-    (async () => {
+    void (async () => {
       if (await this.findTeamByUsername('admin') === null) {
         this.logger.warn('No user with username "admin" found. Creating an admin user.');
         await this.teamRepository.createAdmin(

@@ -1,0 +1,4 @@
+localhost {
+    reverse_proxy techrun_server:5001
+    encode gzip zstd
+}

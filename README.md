@@ -10,6 +10,11 @@ TechRun Game Server
 $ pnpm install
 ```
 
+## Environment variables
+Create a `.env` file in the root directory and set the required environment variables. You can use the `.env.example` file as a reference.
+
+```bash
+
 ## Compile and run the project
 
 ```bash
