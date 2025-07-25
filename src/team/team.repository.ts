@@ -164,7 +164,7 @@ export class TeamRepository {
       return null; // Skill card isn't found in this team
     }
 
-    if (skillCard === SkillCardEnum.HOI_SINH) {
+    if (skillCard === SkillCardEnum.DONG_BO) {
       // Use the previously used skill card
       const previousCard = (await this.skillCardHistoryModel
         .find({ team: team._id })
