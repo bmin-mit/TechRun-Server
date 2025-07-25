@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { SYSTEM_USE_ONLY_STATION_CODENAME } from '@/common/consts/station.const';
 import { CreateStationReqDto } from '@/dtos/station.dto';
 import { Skip } from '@/schemas/skip.schema';
 import { Station } from '@/schemas/station.schema';
@@ -10,7 +11,8 @@ export class StationRepository {
   constructor(
     @InjectModel(Station.name) private readonly stationModel: Model<Station>,
     @InjectModel(Skip.name) private readonly skipModel: Model<Skip>,
-  ) {}
+  ) {
+  }
 
   async findStationByCodename(stationCodename: string, noExcludePin: boolean = false): Promise<Station | null> {
     return await this.stationModel.findOne({ codename: stationCodename }).populate('stationGroup').select(noExcludePin ? '' : '-pin').exec();
@@ -23,7 +25,8 @@ export class StationRepository {
   }
 
   async findAllStations(): Promise<Station[]> {
-    return await this.stationModel.find({}).sort({ codename: 1 }).populate('stationGroup').select('-pin').exec();
+    const stations = await this.stationModel.find({}).sort({ codename: 1 }).populate('stationGroup').select('-pin').exec();
+    return stations.filter(station => station.codename !== SYSTEM_USE_ONLY_STATION_CODENAME);
   }
 
   async createNewStation(stationData: Partial<Station>): Promise<Station> {

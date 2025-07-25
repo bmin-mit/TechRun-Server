@@ -23,12 +23,23 @@ import { TeamService } from '@/team/team.service';
 
 @Controller('station')
 export class StationController {
-  constructor(private readonly stationService: StationService, private readonly teamService: TeamService) {}
+  constructor(private readonly stationService: StationService, private readonly teamService: TeamService) {
+  }
 
   @ApiOperation({ description: 'Get all stations' })
   @Get('/stations')
   async findAllStations() {
     return await this.stationService.findAllStations();
+  }
+
+  @ApiOperation({ description: 'Authenticate the station credential' })
+  @Post('/auth')
+  async authenticateStation(@Body() body: WithPinDto) {
+    const isValid = await this.stationService.verifyPin(body);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid PIN code');
+    }
+    return { message: 'Authentication successful' };
   }
 
   @ApiOperation({ description: 'Find station by codename' })

@@ -33,6 +33,9 @@ export class Team extends Base {
   @ApiProperty({ description: 'The team\'s skill cards' })
   @Prop({ type: [String], default: [], enum: SkillCardEnum })
   skillCards: Array<SkillCardEnum>;
+
+  @Prop({ type: [String], default: [], enum: SkillCardEnum })
+  skillCardsUsing: Array<SkillCardEnum>;
 }
 
 export const TeamSchema = SchemaFactory.createForClass(Team);

@@ -6,6 +6,7 @@ import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { CreateTeamReqDto, OtherTeamsCoinsResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
 import { CoinsHistory } from '@/schemas/coins-history.schema';
 import { SkillCardHistory } from '@/schemas/skill-card-history.schema';
+import { Station } from '@/schemas/station.schema';
 import { Team } from '@/schemas/team.schema';
 
 @Injectable()
@@ -50,13 +51,20 @@ export class TeamRepository {
     return team.unlockedPuzzles;
   }
 
-  async updateTeamCoins(teamUsername: string, diff: number, reason: string): Promise<Team | null> {
+  async updateTeamCoins(station: Station, teamUsername: string, diff: number, reason: string): Promise<Team | null> {
     const team = await this.findTeamByUsername(teamUsername);
     if (!team) {
       return null;
     }
 
+    if (team.skillCardsUsing.includes(SkillCardEnum.NGOI_SAO_HI_VONG) && diff > 0 && station.stationGroup.codename === 'minigame-station') {
+      // If the team is using the "Ngôi sao hy vọng" skill card, triple the coins
+      diff *= 3;
+      await this.teamModel.updateOne(team, { $set: { skillCardsUsing: team.skillCardsUsing.filter(card => card !== SkillCardEnum.NGOI_SAO_HI_VONG) } }).exec();
+    }
+
     await this.coinsHistoryModel.create({
+      station,
       team,
       diff,
       reason,
@@ -196,6 +204,12 @@ export class TeamRepository {
         skillCard: previousCard.skillCard,
         action: SkillCardActionEnum.USED,
       });
+    }
+
+    if (skillCard === SkillCardEnum.NGOI_SAO_HI_VONG) {
+      team.skillCards = team.skillCards.filter(card => card !== skillCard);
+      team.skillCardsUsing.push(skillCard);
+      await team.save();
     }
 
     // Remove the skill card from the team

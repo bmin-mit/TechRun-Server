@@ -1,0 +1,2 @@
+export const SYSTEM_USE_ONLY_STATION_GROUP_NAME = 'SYSTEM USE ONLY STATION GROUP';
+export const SYSTEM_USE_ONLY_STATION_GROUP_CODENAME = 'system-use-only-station-group';
