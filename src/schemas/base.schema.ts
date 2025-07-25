@@ -9,9 +9,9 @@ export class Base {
 
   @ApiProperty({ description: 'The date when the document was created' })
   @Prop({ type: Date, default: Date.now })
-  createdAt: Date;
+  createdAt?: Date;
 
   @ApiProperty({ description: 'The date when the document was last updated' })
   @Prop({ type: Date, default: Date.now })
-  updatedAt: Date;
+  updatedAt?: Date;
 }

@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { AuctionTickService } from '@/auction/auction-tick.service';
 import { AuctionRepository } from '@/auction/auction.repository';
 import { AuctionStateEnum } from '@/common/enums/auction-state.enum';
-import { ItemRepository } from '@/item/item.repository';
-import { NotificationService } from '@/notification/notification.service';
+import { SkillCardEnum } from '@/common/enums/skill-card.enum';
+import { TeamRepository } from '@/team/team.repository';
 
 @Injectable()
 export class AuctionService {
@@ -12,42 +12,54 @@ export class AuctionService {
   private prepareDurationInSeconds = 10;
   private durationInSeconds = 60;
 
+  private readonly logger = new Logger(AuctionService.name);
+
   constructor(
     private readonly auctionRepository: AuctionRepository,
-    private readonly itemRepository: ItemRepository,
-    private readonly notificationService: NotificationService,
     private readonly auctionTickService: AuctionTickService,
+    private readonly teamRepository: TeamRepository,
   ) {}
 
-  async recordAuctionBid(bidderTeamId: string, item: string, bidPrice: number) {
-    await this.auctionRepository.createBid(this.auctionId!, bidderTeamId, bidPrice);
+  async recordAuctionBid(bidderTeamId: string, bidPrice: number) {
+    if (!this.auctionId) {
+      throw new NotFoundException('No auction is currently active.');
+    }
+
+    if (this.auctionState !== AuctionStateEnum.LIVE_AUCTION) {
+      throw new NotFoundException('The auction is not currently live.');
+    }
+
+    if (bidPrice <= 0) {
+      throw new NotFoundException('Bid price must be greater than zero.');
+    }
+
+    const team = (await this.teamRepository.findTeamById(bidderTeamId));
+    if (!team) {
+      throw new NotFoundException(`Team with ID ${bidderTeamId} not found.`);
+    }
+    const bidderTeamUsername = team.username;
+    const teamCoins = await this.teamRepository.getTeamCoins(bidderTeamUsername);
+    if (teamCoins === null || teamCoins < bidPrice) {
+      throw new NotFoundException(`Team ${bidderTeamUsername} does not have enough coins to place this bid.`);
+    }
+
+    this.logger.log(`Bid by ${bidderTeamUsername} for ${bidPrice} coins`);
+    await this.auctionRepository.createBid(this.auctionId!, bidderTeamUsername, bidPrice);
   }
 
-  async createAuction(itemId: string, prepareDurationInSeconds: number, durationInSeconds: number) {
-    if (this.auctionState !== AuctionStateEnum.ENDED_AUCTION) {
-      throw new Error('An auction is already in progress or has not ended yet.');
-    }
+  async createAuction(skillCard: SkillCardEnum, prepareDurationInSeconds: number, durationInSeconds: number) {
+    const auction = await this.auctionRepository.createAuction(skillCard, prepareDurationInSeconds, durationInSeconds);
+    this.auctionId = auction._id.toString();
 
     this.prepareDurationInSeconds = prepareDurationInSeconds;
     this.durationInSeconds = durationInSeconds;
-
-    const item = this.itemRepository.findItemById(itemId);
-
-    if (!item) {
-      throw new NotFoundException('Item not found');
-    }
-
-    const auction = await this.auctionRepository.createAuction(itemId, prepareDurationInSeconds, durationInSeconds);
-    this.auctionId = auction._id.toString();
-    this.auctionState = AuctionStateEnum.PRE_AUCTION;
-
     void this.startAuctionPreparation();
   }
 
   async startAuctionPreparation() {
-    await this.notificationService.sendNewAuctionNotification();
-    await this.auctionTickService.start(this.prepareDurationInSeconds, async (tick) => {
-      await this.notificationService.sendTickToAuctionNotification(tick);
+    this.auctionState = AuctionStateEnum.PRE_AUCTION;
+    await this.auctionTickService.start(this.prepareDurationInSeconds, (tick) => {
+      this.logger.log(`Preparation tick ${tick}`);
     });
 
     void this.startMainAuction();
@@ -55,9 +67,8 @@ export class AuctionService {
 
   async startMainAuction() {
     this.auctionState = AuctionStateEnum.LIVE_AUCTION;
-    await this.notificationService.sendAuctionStartNotification(this.auctionId!);
-    await this.auctionTickService.start(this.durationInSeconds, async (tick) => {
-      await this.notificationService.sendAuctionTickNotification(tick);
+    await this.auctionTickService.start(this.durationInSeconds, (tick) => {
+      this.logger.log(`Live auction tick ${tick}`);
     });
 
     void this.endAuction();
@@ -71,8 +82,22 @@ export class AuctionService {
       throw new NotFoundException('Auction not found');
     }
 
-    const winner = await this.auctionRepository.getAuctionWinner(this.auctionId!);
-    await this.notificationService.sendAuctionEndNotification(winner.name, auction.item.name);
+    const { winner, losers } = await this.auctionRepository.getAuctionWinnerLoser(this.auctionId!);
+    this.logger.log(`Auction ended. Winner: ${winner.username}, Losers: ${losers.map(l => l.username).join(', ')}`);
+
+    // Add the skill card to the winning team
+    await this.teamRepository.addSkillCardToTeam(winner.username, auction.skillCard);
+    this.logger.log(`Skill card ${auction.skillCard} added to team ${winner.username}`);
+
+    // Remove 50% of the coins from the losing teams
+    for (const loser of losers) {
+      const teamCoins = await this.teamRepository.getTeamCoins(loser.username);
+      if (teamCoins !== null) {
+        const coinsToDeduct = Math.ceil(teamCoins * 0.5);
+        await this.teamRepository.updateTeamCoins(loser.username, teamCoins - coinsToDeduct, `Auction ${this.auctionId} loss`);
+        this.logger.log(`Deducted ${coinsToDeduct} coins from team ${loser.username}`);
+      }
+    }
 
     this.auctionId = null; // Reset auction ID
   }
@@ -90,7 +115,7 @@ export class AuctionService {
     }
 
     if (!this.auctionId) {
-      throw new Error('No auction is currently active.');
+      throw new NotFoundException('No auction is currently active.');
     }
 
     return await this.auctionRepository.getAuctionHistory(this.auctionId);
@@ -98,17 +123,17 @@ export class AuctionService {
 
   async getTeamsLatestBids(auctionId?: string) {
     if (auctionId) {
-      return await this.auctionRepository.getTeamsLatestBids(auctionId);
+      return await this.auctionRepository.getBids(auctionId);
     }
 
     if (!this.auctionId) {
-      throw new Error('No auction is currently active.');
+      throw new NotFoundException('No auction is currently active.');
     }
 
-    return await this.auctionRepository.getTeamsLatestBids(this.auctionId);
+    return await this.auctionRepository.getBids(this.auctionId);
   }
 
-  async canSeeOtherTeamsCoins() {
+  canSeeOtherTeamsCoins() {
     return this.auctionState === AuctionStateEnum.PRE_AUCTION;
   }
 

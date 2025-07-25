@@ -1,26 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { CreateStationReqDto } from '@/dtos/station.dto';
+import { Skip } from '@/schemas/skip.schema';
 import { Station } from '@/schemas/station.schema';
 
 @Injectable()
 export class StationRepository {
   constructor(
     @InjectModel(Station.name) private readonly stationModel: Model<Station>,
+    @InjectModel(Skip.name) private readonly skipModel: Model<Skip>,
   ) {}
 
-  async findStationByName(stationName: string): Promise<Station | null> {
-    return await this.stationModel.findOne({ name: stationName }).exec();
+  async findStationByCodename(stationCodename: string, noExcludePin: boolean = false): Promise<Station | null> {
+    return await this.stationModel.findOne({ codename: stationCodename }).populate('stationGroup').select(noExcludePin ? '' : '-pin').exec();
   }
 
   async findStationById(stationId: string): Promise<Station | null> {
     if (!mongoose.Types.ObjectId.isValid(stationId))
-      throw new Error('Invalid station ID');
-    return await this.stationModel.findById(stationId).exec();
+      throw new NotFoundException('Invalid station ID');
+    return await this.stationModel.findById(stationId).populate('stationGroup').select('-pin').exec();
   }
 
   async findAllStations(): Promise<Station[]> {
-    return await this.stationModel.find({}).sort({ name: 1 }).exec();
+    return await this.stationModel.find({}).sort({ codename: 1 }).populate('stationGroup').select('-pin').exec();
   }
 
   async createNewStation(stationData: Partial<Station>): Promise<Station> {
@@ -34,10 +37,43 @@ export class StationRepository {
       stationId,
       updateData,
       { new: true },
-    ).exec();
+    ).populate('stationGroup').exec();
   }
 
   async deleteStation(stationId: string): Promise<Station | null> {
     return await this.stationModel.findByIdAndDelete(stationId).exec();
+  }
+
+  getUnskipPrice(): number {
+    return 30;
+  }
+
+  async skip(teamId: string, stationGroupId: string): Promise<Skip> {
+    // eslint-disable-next-line new-cap
+    const skip = new this.skipModel({
+      team: teamId,
+      stationGroup: stationGroupId,
+    });
+    return skip.save();
+  }
+
+  async unskip(teamId: string, stationGroupId: string): Promise<void> {
+    await this.skipModel.findOneAndDelete({ team: teamId, stationGroup: stationGroupId });
+  }
+
+  async isSkipped(teamId: string, stationGroupId: string): Promise<boolean> {
+    const result = await this.skipModel.exists({
+      team: teamId,
+      stationGroup: stationGroupId,
+    });
+    return result !== null;
+  }
+
+  async deleteAllStations() {
+    return await this.stationModel.deleteMany({}).exec();
+  }
+
+  async createManyStations(stations: CreateStationReqDto[]) {
+    return await this.stationModel.insertMany(stations);
   }
 }

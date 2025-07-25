@@ -1,5 +1,5 @@
-import type { User } from '@/schemas/user.schema';
+import type { Team } from '@/schemas/team.schema';
 
 export interface AuthRequest extends Request {
-  user: User;
+  user: Team;
 }

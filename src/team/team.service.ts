@@ -1,19 +1,37 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuctionService } from '@/auction/auction.service';
-import { CreateTeamReqDto, UpdateTeamReqDto } from '@/dtos/team.dto';
-import { NotificationService } from '@/notification/notification.service';
+import { SkillCardEnum } from '@/common/enums/skill-card.enum';
+import { CreateTeamReqDto, MeResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
 import { TeamRepository } from '@/team/team.repository';
 
 @Injectable()
 export class TeamService {
+  private readonly logger = new Logger(TeamService.name);
+
   constructor(
     private readonly teamRepository: TeamRepository,
     private readonly auctionService: AuctionService,
-    private readonly notificationService: NotificationService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    void (async () => {
+      if (await this.findTeamByUsername('admin') === null) {
+        this.logger.warn('No user with username "admin" found. Creating an admin user.');
+        await this.teamRepository.createAdmin(
+          this.configService.get<string>('adminPassword') || 'admin',
+        );
+      }
+      else {
+        this.logger.log('Admin user already exists. Updating admin password to reflect ENV.');
+        await this.teamRepository.updateAdminPassword(
+          this.configService.get<string>('adminPassword') || 'admin',
+        );
+      }
+    })();
+  }
 
-  async findTeamByCodename(teamCodename: string) {
-    return await this.teamRepository.findTeamByCodename(teamCodename);
+  async findTeamByUsername(teamCodename: string) {
+    return await this.teamRepository.findTeamByUsername(teamCodename);
   }
 
   async findTeamById(teamId: string) {
@@ -24,65 +42,93 @@ export class TeamService {
     return await this.teamRepository.findAllTeams();
   }
 
-  async getTeamCoins(teamId: string) {
-    return await this.teamRepository.getTeamCoins(teamId);
+  async getTeamUnlockedPuzzles(teamId: string) {
+    const team = await this.teamRepository.findTeamById(teamId);
+    if (!team) {
+      throw new NotFoundException('The team with this ID does not exist.');
+    }
+    const teamUsername = team.username;
+    return await this.teamRepository.getTeamUnlockedPuzzles(teamUsername);
   }
 
-  async getTeamStations(teamId: string) {
-    return await this.teamRepository.getTeamStations(teamId);
+  async updateTeamCoins(teamUsername: string, coins: number, reason: string) {
+    return await this.teamRepository.updateTeamCoins(teamUsername, coins, reason);
   }
 
-  async getTeamMembers(teamId: string) {
-    return await this.teamRepository.getTeamMembers(teamId);
-  }
-
-  async getTeamItems(teamId: string) {
-    return await this.teamRepository.getTeamItems(teamId);
-  }
-
-  async updateTeamCoins(teamId: string, coins: number, reason: string) {
-    await this.notificationService.sendCoinsUpdateNotification(teamId, coins, reason);
-    return await this.teamRepository.updateTeamCoins(teamId, coins, reason);
-  }
-
-  async updateTeamItems(teamId: string, itemId: string, quantity: number, reason: string) {
-    await this.notificationService.sendItemUpdateNotification(teamId, itemId, quantity, reason);
-    return await this.teamRepository.updateTeamItems(teamId, itemId, quantity, reason);
+  async unlockTeamPuzzle(teamUsername: string, unlockIndex: number) {
+    return await this.teamRepository.unlockPuzzle(teamUsername, unlockIndex);
   }
 
   async createTeam(teamData: CreateTeamReqDto) {
-    if (await this.findTeamByCodename(teamData.codename)) {
-      throw new ConflictException('The team with this codename already exists.');
+    if (await this.findTeamByUsername(teamData.username)) {
+      throw new ConflictException('The team with this username already exists.');
     }
 
     return await this.teamRepository.createTeam(teamData);
   }
 
-  async updateTeam(teamId: string, teamData: UpdateTeamReqDto) {
-    if (await this.findTeamById(teamId) === null) {
-      throw new NotFoundException('The team with this ID does not exist.');
+  async updateTeam(teamUsername: string, teamData: UpdateTeamReqDto) {
+    if (await this.findTeamByUsername(teamUsername) === null) {
+      throw new NotFoundException('The team with this username does not exist.');
     }
 
-    if (await this.teamRepository.findTeamByCodename(teamData.codename)) {
-      throw new ConflictException('The team with this codename already exists.');
+    if (await this.teamRepository.findTeamByUsername(teamData.username)) {
+      throw new ConflictException('The team with this username already exists.');
     }
 
-    return await this.teamRepository.updateTeam(teamId, teamData);
+    return await this.teamRepository.updateTeam(teamUsername, teamData);
   }
 
-  async deleteTeam(teamId: string) {
-    if (await this.findTeamById(teamId) === null) {
-      throw new NotFoundException('The team with this ID does not exist.');
+  async deleteTeam(teamUsername: string) {
+    if (await this.findTeamByUsername(teamUsername) === null) {
+      throw new NotFoundException('The team with this username does not exist.');
     }
 
-    return await this.teamRepository.deleteTeam(teamId);
+    return await this.teamRepository.deleteTeam(teamUsername);
   }
 
   async getOtherTeamsCoins() {
-    if (!await this.auctionService.canSeeOtherTeamsCoins()) {
+    if (!this.auctionService.canSeeOtherTeamsCoins()) {
       throw new ConflictException('You can only see other teams\' coins during the auction preparation phase.', 'auction_preparation_phase');
     }
 
     return await this.teamRepository.getOtherTeamsCoins();
+  }
+
+  async me(teamId: string): Promise<MeResDto> {
+    const team = await this.teamRepository.findTeamById(teamId);
+    if (!team) {
+      throw new NotFoundException('The team with this ID does not exist.');
+    }
+
+    return {
+      _id: team._id!.toString(),
+      name: team.name,
+      username: team.username,
+      coins: team.coins,
+      unlockedPuzzles: team.unlockedPuzzles,
+      skillCards: team.skillCards,
+    };
+  }
+
+  async getTeamSkillCardHistory(teamUsername: string) {
+    return this.teamRepository.getTeamSkillCardHistory(teamUsername);
+  }
+
+  async getAllSkillCardHistory() {
+    return this.teamRepository.getAllSkillCardHistory();
+  }
+
+  async useSkillCard(teamId: string, skillCard: SkillCardEnum) {
+    const team = await this.teamRepository.findTeamById(teamId);
+    if (!team) {
+      throw new NotFoundException('The team with this ID does not exist.');
+    }
+
+    if (!team.skillCards.includes(skillCard)) {
+      throw new ConflictException(`The team does not have the skill card: ${skillCard}`);
+    }
+
+    return await this.teamRepository.useSkillCard(teamId, skillCard);
   }
 }

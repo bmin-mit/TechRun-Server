@@ -1,0 +1,47 @@
+services:
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      - techrun_server
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./caddy:/etc/caddy
+      - caddy_data:/data
+    networks:
+      - caddy
+    hostname: techrun_caddy
+
+  techrun_server:
+    image: hpd_ptnk/techrun_server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - caddy
+      - db
+    hostname: techrun_server
+
+  db:
+    image: mongo:8
+    restart: always
+    # Local only
+    ports:
+      - '127.0.0.1:27017:27017'
+    volumes:
+      - ./db:/data/db
+    networks:
+      - db
+    hostname: techrun_db
+
+networks:
+  db:
+  caddy:
+volumes:
+  caddy_data:

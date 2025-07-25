@@ -1,12 +1,11 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuctionTickService } from '@/auction/auction-tick.service';
 import { AuctionRepository } from '@/auction/auction.repository';
-import { ItemModule } from '@/item/item.module';
-import { NotificationModule } from '@/notification/notification.module';
 import { AuctionHistory, AuctionHistorySchema } from '@/schemas/auction-history.schema';
+import { AuctionStatus, AuctionStatusSchema } from '@/schemas/auction-status.schema';
 import { Auction, AuctionSchema } from '@/schemas/auction.schema';
-import { UserModule } from '@/user/user.module';
+import { TeamModule } from '@/team/team.module';
 import { AuctionController } from './auction.controller';
 import { AuctionService } from './auction.service';
 
@@ -18,13 +17,15 @@ import { AuctionService } from './auction.service';
         schema: AuctionSchema,
       },
       {
+        name: AuctionStatus.name,
+        schema: AuctionStatusSchema,
+      },
+      {
         name: AuctionHistory.name,
         schema: AuctionHistorySchema,
       },
     ]),
-    forwardRef(() => ItemModule),
-    NotificationModule,
-    UserModule,
+    TeamModule,
   ],
   providers: [AuctionService, AuctionRepository, AuctionTickService],
   controllers: [AuctionController],

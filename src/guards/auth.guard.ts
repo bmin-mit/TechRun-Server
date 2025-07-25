@@ -2,14 +2,14 @@ import { CanActivate, ExecutionContext, Injectable, Logger, mixin, Type, Unautho
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
-import { UserRepository } from '@/user/user.repository';
+import { TeamRepository } from '@/team/team.repository';
 
 export function AuthGuard(...roles: UserRoleEnum[]): Type<CanActivate> {
   @Injectable()
   class AuthGuardMixin implements CanActivate {
     constructor(
       private readonly jwtService: JwtService,
-      private readonly userRepository: UserRepository,
+      private readonly teamRepository: TeamRepository,
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -18,21 +18,26 @@ export function AuthGuard(...roles: UserRoleEnum[]): Type<CanActivate> {
         const token = this.extractTokenFromHeader(request);
 
         if (!token) {
-          throw new UnauthorizedException();
+          throw new UnauthorizedException('No token provided');
         }
 
         const tokenData: { sub: string } = await this.jwtService.verifyAsync(token);
-        const user = await this.userRepository.findUserById(tokenData.sub);
+        const user = await this.teamRepository.findTeamById(tokenData.sub);
 
         if (!user)
-          throw new UnauthorizedException();
+          throw new UnauthorizedException('User not found');
 
-        if ((roles.length > 0 && roles.includes(user.role)) || !roles || roles.length === 0) {
+        // Admins are always allowed
+        if (!roles
+          || roles.length === 0
+          || (roles.length > 0 && roles.includes(user.role as UserRoleEnum))
+          || user.role === UserRoleEnum.ADMIN
+        ) {
           request.user = user;
           return true;
         }
 
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Insufficient permissions');
       }
       catch (error) {
         Logger.error(error);

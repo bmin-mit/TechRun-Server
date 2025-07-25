@@ -14,6 +14,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger(SERVICE_NAME);
 
+  // Add CORS
+  // Allow all origins, methods, and headers
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
+  });
+
   const documentConfig = new DocumentBuilder()
     .setTitle(SERVICE_NAME)
     .setDescription(`Documentation for ${SERVICE_NAME}`)
