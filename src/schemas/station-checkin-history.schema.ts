@@ -12,7 +12,7 @@ export class StationCheckinHistory extends Base {
   station: Station;
 
   @ApiProperty({ description: 'The team that checked in' })
-  @Prop({ required: true, type: mongoose.Schema.Types.String, ref: Team.name })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
   team: Team;
 }
 
