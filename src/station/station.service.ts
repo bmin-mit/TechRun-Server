@@ -432,7 +432,7 @@ export class StationService {
     if (!station) {
       return false;
     }
-
+    console.log(station.pin, body.pin);
     return station.pin === body.pin;
   }
 }
