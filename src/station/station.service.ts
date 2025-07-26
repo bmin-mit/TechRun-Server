@@ -351,7 +351,7 @@ export class StationService {
     const price = await this.getVisitPrice(stationId, teamUsername);
 
     await this.teamRepository.updateTeamCoins(station!.codename, teamUsername, -price, `Visiting station ${station!.name}`);
-    return await this.stationCheckinHistoryRepository.createCheckinHistory(station!, teamUsername);
+    return await this.stationCheckinHistoryRepository.createCheckinHistory(station!, teamId);
   }
 
   async canTeamVisitStation(stationId: string, teamId: string) {

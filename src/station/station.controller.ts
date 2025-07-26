@@ -94,8 +94,7 @@ export class StationController {
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Get('/visited/:teamUsername')
   async findVisitedStationsByTeam(@Param('teamUsername') teamUsername: string) {
-    const team = await this.teamService.findTeamByUsername(teamUsername);
-    return await this.stationService.findVisitedStationsByTeam(team!._id!.toString());
+    return await this.stationService.findVisitedStationsByTeam(teamUsername);
   }
 
   @ApiOperation({ description: 'Create a new station', tags: ['Admin'] })

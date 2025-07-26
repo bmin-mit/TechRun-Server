@@ -13,11 +13,11 @@ export class StationCheckinHistoryRepository {
     return await this.stationCheckinHistoryModel.find({ team: { username: teamUsername } }).sort({ createdAt: -1 }).exec();
   }
 
-  async createCheckinHistory(station: Station, teamUsername: string) {
+  async createCheckinHistory(station: Station, teamId: string) {
     // eslint-disable-next-line new-cap
     const newCheckin = new this.stationCheckinHistoryModel({
       station,
-      team: teamUsername,
+      team: teamId,
     });
 
     return await newCheckin.save();
