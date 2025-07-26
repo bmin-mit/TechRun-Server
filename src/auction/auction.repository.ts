@@ -74,7 +74,7 @@ export class AuctionRepository {
     const auctionHistory = new this.auctionHistoryModel({
       auction: auctionId,
       team: teamId,
-      price,
+      auctionedPrice: price,
     });
 
     await auctionHistory.save();
