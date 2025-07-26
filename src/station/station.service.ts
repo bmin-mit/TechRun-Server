@@ -176,8 +176,8 @@ export class StationService {
         pin: pinGenerator(),
       },
       {
-        name: 'Mảnh vỡ mật khẩu',
-        codename: 'manh-vo-mat-khau',
+        name: 'Hệ thống nhiễu',
+        codename: 'he-thong-nhieu',
         difficulty: StationDifficultyEnum.HARD,
         stationGroup: (await this.stationGroupModel.findOne({ codename: 'bi-an-so' }).exec())!,
         pin: pinGenerator(),
@@ -413,6 +413,31 @@ export class StationService {
       default:
         throw new NotFoundException('Station difficulty not found');
     }
+  }
+
+  async completeStation(
+    teamUsername: string,
+    stationCodename: string,
+  ) {
+    const team = await this.teamRepository.findTeamByUsername(teamUsername);
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+
+    const station = await this.findStationByCodename(stationCodename);
+
+    if (station!.stationGroup!.codename === 'minigame-station') {
+      switch (station!.difficulty) {
+        case StationDifficultyEnum.EASY:
+          return await this.teamRepository.updateTeamCoins(stationCodename, team.username, 3, `Completing minigame station: ${station!.name}`);
+        case StationDifficultyEnum.MEDIUM:
+          return await this.teamRepository.updateTeamCoins(stationCodename, team.username, 4, `Completing minigame station: ${station!.name}`);
+        case StationDifficultyEnum.HARD:
+          return await this.teamRepository.updateTeamCoins(stationCodename, team.username, 6, `Completing minigame station: ${station!.name}`);
+      }
+    }
+
+    return await this.teamRepository.unlockPuzzle(team.username, stationCodename);
   }
 
   async skip(teamId: string, stationCodename: string) {
