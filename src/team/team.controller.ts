@@ -26,7 +26,7 @@ export class TeamController {
   }
 
   @ApiOperation({ description: 'Get all teams', tags: ['WithPin'] })
-  @Get('/staff/teams')
+  @Post('/staff/teams')
   async getAllTeamsStation(@Body() body: WithPinDto) {
     if (!(await this.stationService.verifyPin(body))) {
       throw new UnauthorizedException('Invalid PIN code');

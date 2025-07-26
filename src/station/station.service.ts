@@ -345,22 +345,19 @@ export class StationService {
       throw new NotFoundException('Team not found');
     }
 
-    const teamId = team._id!.toString();
-    const stationId = station?._id!.toString();
-
-    if (!(await this.canTeamVisitStation(stationId!, teamId))) {
+    if (!(await this.canTeamVisitStation(stationCodename, teamUsername))) {
       throw new ConflictException('Team cannot visit this station');
     }
 
-    const price = await this.getVisitPrice(stationId!, teamId);
+    const price = await this.getVisitPrice(stationCodename, teamUsername);
 
     await this.teamRepository.updateTeamCoins(station!.codename, teamUsername, -price, `Visiting station ${station!.name}`);
-    return await this.stationCheckinHistoryRepository.createCheckinHistory(station!, teamId);
+    return await this.stationCheckinHistoryRepository.createCheckinHistory(station!, team._id!.toString());
   }
 
-  async canTeamVisitStation(stationId: string, teamId: string) {
-    const team = await this.teamRepository.findTeamById(teamId);
-    const station = await this.findStationById(stationId);
+  async canTeamVisitStation(stationCodename: string, teamUsername: string) {
+    const team = await this.teamRepository.findTeamByUsername(teamUsername);
+    const station = await this.findStationByCodename(stationCodename);
 
     if (!team) {
       throw new NotFoundException('Team not found');
@@ -371,39 +368,39 @@ export class StationService {
     }
 
     // Check if the team skipped this station and had not yet paid (if paid, the skip entry would be removed)
-    const isSkipped = await this.stationRepository.isSkipped(teamId, station!.stationGroup._id!.toString());
+    const isSkipped = await this.stationRepository.isSkipped(team._id!.toString(), station!.stationGroup._id!.toString());
     if (isSkipped) {
       throw new ConflictException('Team has skipped this station and cannot visit it again until unskipped (paid).');
     }
 
-    const price = await this.getVisitPrice(stationId, teamId);
+    const price = await this.getVisitPrice(stationCodename, teamUsername);
 
     if (team.coins < price) {
       throw new ConflictException(`Not enough coins to visit this station. Required: ${price}, Available: ${team.coins}`);
     }
 
     const visitedStations = await this.findVisitedStationsByTeam(team.username);
-    return !visitedStations.some(station => station._id!.toString() === stationId);
+    return !visitedStations.some(station => station.station.codename === stationCodename);
   }
 
   async findVisitedStationsByTeam(teamUsername: string) {
     return await this.stationCheckinHistoryRepository.findVisitedStationsByTeam(teamUsername);
   }
 
-  async getVisitPrice(stationId: string, teamId: string) {
-    const station = await this.findStationById(stationId);
+  async getVisitPrice(stationCodename: string, teamUsername: string) {
+    const station = await this.findStationByCodename(stationCodename);
 
     if (!station) {
       throw new NotFoundException('Station not found');
     }
 
-    const team = await this.teamRepository.findTeamById(teamId);
+    const team = await this.teamRepository.findTeamByUsername(teamUsername);
     if (!team) {
       throw new NotFoundException('Team not found');
     }
 
     const visitedStations = await this.findVisitedStationsByTeam(team!.username);
-    const visitCount = visitedStations.filter(station => station._id!.toString() === stationId).length;
+    const visitCount = visitedStations.filter(station => station.station.codename === stationCodename).length;
 
     // Must be greater than or equal to 0
     switch (station.difficulty) {

@@ -19,11 +19,10 @@ import { CreateStationReqDto, UpdateStationReqDto } from '@/dtos/station.dto';
 import { WithPinDto } from '@/dtos/with-pin.dto';
 import { AuthGuard } from '@/guards/auth.guard';
 import { StationService } from '@/station/station.service';
-import { TeamService } from '@/team/team.service';
 
 @Controller('station')
 export class StationController {
-  constructor(private readonly stationService: StationService, private readonly teamService: TeamService) {
+  constructor(private readonly stationService: StationService) {
   }
 
   @ApiOperation({ description: 'Get all stations' })
@@ -66,21 +65,21 @@ export class StationController {
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/visited')
   async findVisitedStations(@Request() req: AuthRequest) {
-    return await this.stationService.findVisitedStationsByTeam(req.user.username!.toString());
+    return await this.stationService.findVisitedStationsByTeam(req.user.username);
   }
 
   @ApiOperation({ description: 'Get the price of visiting the current station' })
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
-  @Get('/visit-price/:id')
-  async getVisitPrice(@Param('id') id: string, @Request() req: AuthRequest) {
-    return await this.stationService.getVisitPrice(id, req.user._id!.toString());
+  @Get('/visit-price/:stationCodename')
+  async getVisitPrice(@Param('stationCodename') stationCodename: string, @Request() req: AuthRequest) {
+    return await this.stationService.getVisitPrice(stationCodename, req.user.username);
   }
 
   @ApiOperation({ description: 'Can the team visit the current station?' })
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
-  @Get('/can-visit/:id')
-  async canTeamVisitStation(@Param('id') id: string, @Request() req: AuthRequest) {
-    return await this.stationService.canTeamVisitStation(id, req.user._id!.toString());
+  @Get('/can-visit/:stationCodename')
+  async canTeamVisitStation(@Param('stationCodename') stationCodename: string, @Request() req: AuthRequest) {
+    return await this.stationService.canTeamVisitStation(stationCodename, req.user.username);
   }
 
   @ApiOperation({ description: 'Mark a station as visited', tags: ['WithPin'] })

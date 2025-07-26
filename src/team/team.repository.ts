@@ -29,7 +29,7 @@ export class TeamRepository {
   }
 
   async findAllTeams(): Promise<Team[]> {
-    return await this.teamModel.find({}).populate('unlockedPuzzles').sort({ coins: -1 }).exec();
+    return await this.teamModel.find({ role: UserRoleEnum.PLAYER }).populate('unlockedPuzzles').sort({ coins: -1 }).exec();
   }
 
   async getTeamCoins(teamUsername: string): Promise<number | null> {
