@@ -396,6 +396,11 @@ export class StationService {
       throw new NotFoundException('Station not found');
     }
 
+    if (station.stationGroup.codename === 'minigame-station') {
+      // For minigame stations, the price is always 0 coins
+      return 0;
+    }
+
     const team = await this.teamRepository.findTeamByUsername(teamUsername);
     if (!team) {
       throw new NotFoundException('Team not found');
