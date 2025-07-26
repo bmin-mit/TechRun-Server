@@ -30,11 +30,11 @@ export class AuctionRepository {
     const teams = await this.auctionStatusModel
       .find({ auction: auctionId })
       .sort({ auctionedPrice: -1 })
-      .distinct('team')
+      .populate('team')
       .exec();
     return {
-      winner: teams[0],
-      losers: teams.filter(team => team.username !== teams[0].username),
+      winner: teams[0].team,
+      losers: teams.filter(team => team.team.username !== teams[0].team.username).map(team => team.team),
     };
   }
 
