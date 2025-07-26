@@ -423,7 +423,7 @@ export class StationService {
       throw new NotFoundException('Station group not found');
     }
 
-    const stationGroupId = (await this.stationRepository.findStationByCodename(stationCodename))!._id!.toString();
+    const stationGroupId = (await this.stationRepository.findStationByCodename(stationCodename))!.stationGroup!._id!.toString();
 
     return await this.stationRepository.skip(teamId, stationGroupId);
   }
@@ -433,7 +433,7 @@ export class StationService {
       throw new NotFoundException('Team not found');
     }
 
-    const stationGroupId = (await this.stationRepository.findStationByCodename(stationCodename))!._id!.toString();
+    const stationGroupId = (await this.stationRepository.findStationByCodename(stationCodename))!.stationGroup!._id!.toString();
 
     if (noCoinsUpdate) {
       return await this.stationRepository.unskip(teamId, stationGroupId);
