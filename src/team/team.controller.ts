@@ -21,7 +21,16 @@ export class TeamController {
   @ApiOperation({ description: 'Get all teams', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Get('/teams')
-  async getAllTeams() {
+  async getAllTeamsAdmin() {
+    return await this.teamService.findAllTeams();
+  }
+
+  @ApiOperation({ description: 'Get all teams', tags: ['WithPin'] })
+  @Get('/staff/teams')
+  async getAllTeamsStation(@Body() body: WithPinDto) {
+    if (!(await this.stationService.verifyPin(body))) {
+      throw new UnauthorizedException('Invalid PIN code');
+    }
     return await this.teamService.findAllTeams();
   }
 
@@ -48,7 +57,6 @@ export class TeamController {
   }
 
   @ApiOperation({ description: 'Update team coins', tags: ['WithPin'] })
-  @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/update-coins')
   async updateTeamCoins(
     @Query('teamUsername') teamUsername: string,
@@ -95,7 +103,6 @@ export class TeamController {
   }
 
   @ApiOperation({ description: 'Unlock a puzzle for the team', tags: ['WithPin'] })
-  @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/unlock-puzzle')
   async unlockTeamPuzzle(
     @Query('teamUsername') teamUsername: string,

@@ -131,7 +131,6 @@ export class StationController {
   }
 
   @ApiOperation({ description: 'Unskip a station', tags: ['WithPin'] })
-  //@UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/unskip')
   async unskipStation(
     @Query('teamId') teamId: string,
