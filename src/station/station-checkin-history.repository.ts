@@ -10,7 +10,7 @@ export class StationCheckinHistoryRepository {
   }
 
   async findVisitedStationsByTeam(teamUsername: string): Promise<StationCheckinHistory[]> {
-    return await this.stationCheckinHistoryModel.find({ team: teamUsername }).sort({ createdAt: -1 }).exec();
+    return await this.stationCheckinHistoryModel.find({ team: { username: teamUsername } }).sort({ createdAt: -1 }).exec();
   }
 
   async createCheckinHistory(station: Station, teamUsername: string) {
