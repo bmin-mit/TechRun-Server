@@ -52,8 +52,8 @@ export class AuctionRepository {
     return await auction.save();
   }
 
-  async createBid(auctionId: string, teamUsername: string, price: number) {
-    const auctionStatus = await this.auctionStatusModel.findOne({ auction: auctionId, team: teamUsername });
+  async createBid(auctionId: string, teamId: string, price: number) {
+    const auctionStatus = await this.auctionStatusModel.findOne({ auction: auctionId, team: teamId });
     if (auctionStatus) {
       // Update the existing bid
       auctionStatus.auctionedPrice = price;
@@ -64,7 +64,7 @@ export class AuctionRepository {
       // eslint-disable-next-line new-cap
       const newAuctionStatus = new this.auctionStatusModel({
         auction: auctionId,
-        team: teamUsername,
+        team: teamId,
         auctionedPrice: price,
       });
       await newAuctionStatus.save();
@@ -73,7 +73,7 @@ export class AuctionRepository {
     // eslint-disable-next-line new-cap
     const auctionHistory = new this.auctionHistoryModel({
       auction: auctionId,
-      team: teamUsername,
+      team: teamId,
       price,
     });
 

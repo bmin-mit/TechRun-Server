@@ -46,7 +46,7 @@ export class AuctionService {
     }
 
     this.logger.log(`Bid by ${bidderTeamUsername} for ${bidPrice} coins`);
-    await this.auctionRepository.createBid(this.auctionId!, bidderTeamUsername, bidPrice);
+    await this.auctionRepository.createBid(this.auctionId!, team._id!.toString(), bidPrice);
   }
 
   async createAuction(skillCard: SkillCardEnum, prepareDurationInSeconds: number, durationInSeconds: number) {
