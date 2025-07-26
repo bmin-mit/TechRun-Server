@@ -1,4 +1,11 @@
 localhost {
-    reverse_proxy techrun_server:5001
+    handle_path /api/* {
+        reverse_proxy techrun_server:5001
+    }
+
+    handle_path /* {
+        reverse_proxy techrun_client:3000
+    }
+
     encode gzip zstd
 }

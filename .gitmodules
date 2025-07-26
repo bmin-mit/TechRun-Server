@@ -1,0 +1,3 @@
+[submodule "TechRun-Client-Rework"]
+	path = TechRun-Client-Rework
+	url = https://github.com/bmin-mit/TechRun-Client-Rework

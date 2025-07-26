@@ -15,6 +15,7 @@ services:
     hostname: techrun_caddy
 
   techrun_server:
+    restart: always
     image: hpd_ptnk/techrun_server
     build:
       context: .
@@ -27,6 +28,20 @@ services:
       - caddy
       - db
     hostname: techrun_server
+
+  techrun_client:
+    restart: always
+    image: hpd_ptnk/techrun_client
+    build:
+      context: TechRun-Client-Rework
+      dockerfile: ../client.Dockerfile
+    env_file:
+      - frontend-env/.env
+    depends_on:
+      - techrun_server
+    networks:
+      - caddy
+    hostname: techrun_client
 
   db:
     image: mongo:8

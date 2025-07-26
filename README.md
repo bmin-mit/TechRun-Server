@@ -12,6 +12,7 @@ $ pnpm install
 
 ## Environment variables
 Create a `.env` file in the root directory and set the required environment variables. You can use the `.env.example` file as a reference.
+For frontend, the environment variables are inside the `frontend-env/` folder
 
 ```bash
 

@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { AuctionTickService } from '@/auction/auction-tick.service';
 import { AuctionRepository } from '@/auction/auction.repository';
+import { SYSTEM_USE_ONLY_STATION_CODENAME } from '@/common/consts/station.const';
 import { AuctionStateEnum } from '@/common/enums/auction-state.enum';
 import { SkillCardEnum } from '@/common/enums/skill-card.enum';
 import { TeamRepository } from '@/team/team.repository';
@@ -94,7 +95,7 @@ export class AuctionService {
       const teamCoins = await this.teamRepository.getTeamCoins(loser.username);
       if (teamCoins !== null) {
         const coinsToDeduct = Math.ceil(teamCoins * 0.5);
-        await this.teamRepository.updateTeamCoins(loser.username, teamCoins - coinsToDeduct, `Auction ${this.auctionId} loss`);
+        await this.teamRepository.updateTeamCoins(SYSTEM_USE_ONLY_STATION_CODENAME, loser.username, teamCoins - coinsToDeduct, `Auction ${this.auctionId} loss`);
         this.logger.log(`Deducted ${coinsToDeduct} coins from team ${loser.username}`);
       }
     }

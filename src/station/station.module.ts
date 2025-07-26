@@ -24,6 +24,6 @@ import { StationService } from './station.service';
   ],
   providers: [StationService, StationRepository, StationCheckinHistoryRepository],
   controllers: [StationController],
-  exports: [StationRepository, StationService],
+  exports: [StationRepository, StationService, MongooseModule],
 })
 export class StationModule {}
