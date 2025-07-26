@@ -22,6 +22,8 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization',
   });
 
+  app.setGlobalPrefix('api');
+
   const documentConfig = new DocumentBuilder()
     .setTitle(SERVICE_NAME)
     .setDescription(`Documentation for ${SERVICE_NAME}`)

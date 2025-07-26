@@ -1,9 +1,9 @@
 localhost {
-    handle_path /api/* {
+    route /api/* {
         reverse_proxy techrun_server:5001
     }
 
-    handle_path /* {
+    route /* {
         reverse_proxy techrun_client:3000
     }
 
