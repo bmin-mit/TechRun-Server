@@ -33,8 +33,8 @@ export class AuctionRepository {
       .populate('team')
       .exec();
     return {
-      winner: teams[0].team,
-      losers: teams.filter(team => team.team.username !== teams[0].team.username).map(team => team.team),
+      winner: teams[0],
+      losers: teams.filter(team => team.team.username !== teams[0].team.username),
     };
   }
 

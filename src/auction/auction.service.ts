@@ -92,20 +92,19 @@ export class AuctionService {
       return;
     }
 
-    this.logger.log(`Auction ended. Winner: ${winner.username}, Losers: ${losers.map(l => l.username).join(', ')}`);
+    this.logger.log(`Auction ended. Winner: ${winner.team.username}, Losers: ${losers.map(l => l.team.username).join(', ')}`);
 
     // Add the skill card to the winning team
-    await this.teamRepository.addSkillCardToTeam(winner.username, auction.skillCard);
-    this.logger.log(`Skill card ${auction.skillCard} added to team ${winner.username}`);
+    await this.teamRepository.addSkillCardToTeam(winner.team.username, auction.skillCard);
+    this.logger.log(`Skill card ${auction.skillCard} added to team ${winner.team.username}`);
 
-    // Remove 50% of the coins from the losing teams
+    // Remove the winning team's coins
+    await this.teamRepository.updateTeamCoins(SYSTEM_USE_ONLY_STATION_CODENAME, winner.team.username, -winner.auctionedPrice, `Auction ${this.auctionId} win`);
+    this.logger.log(`Deducted ${winner.auctionedPrice} coins from team ${winner.team.username}`);
+
     for (const loser of losers) {
-      const teamCoins = await this.teamRepository.getTeamCoins(loser.username);
-      if (teamCoins !== null) {
-        const coinsToDeduct = Math.ceil(teamCoins * 0.5);
-        await this.teamRepository.updateTeamCoins(SYSTEM_USE_ONLY_STATION_CODENAME, loser.username, teamCoins - coinsToDeduct, `Auction ${this.auctionId} loss`);
-        this.logger.log(`Deducted ${coinsToDeduct} coins from team ${loser.username}`);
-      }
+      await this.teamRepository.updateTeamCoins(SYSTEM_USE_ONLY_STATION_CODENAME, loser.team.username, -(loser.auctionedPrice / 2), `Auction ${this.auctionId} loss`);
+      this.logger.log(`Deducted ${loser.auctionedPrice / 2} coins from team ${loser.team.username}`);
     }
 
     this.auctionId = null; // Reset auction ID
