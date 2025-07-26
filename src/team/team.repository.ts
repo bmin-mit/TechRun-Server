@@ -208,12 +208,7 @@ export class TeamRepository {
         action: SkillCardActionEnum.USED,
       });
 
-      // Return this for the client to render
-      return await this.skillCardHistoryModel.create({
-        team,
-        skillCard: previousCard.skillCard,
-        action: SkillCardActionEnum.USED,
-      });
+      return await this.addSkillCardToTeam(team.username, previousCard.skillCard);
     }
 
     if (skillCard === SkillCardEnum.NGOI_SAO_HI_VONG) {
