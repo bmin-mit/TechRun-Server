@@ -379,8 +379,10 @@ export class StationService {
       throw new ConflictException(`Not enough coins to visit this station. Required: ${price}, Available: ${team.coins}`);
     }
 
-    const visitedStations = await this.findVisitedStationsByTeam(team.username);
-    return !visitedStations.some(station => station.station.codename === stationCodename);
+    // const visitedStations = await this.findVisitedStationsByTeam(team.username);
+    // return !visitedStations.some(station => station.station.codename === stationCodename);
+
+    return true;
   }
 
   async findVisitedStationsByTeam(teamUsername: string) {
@@ -400,7 +402,8 @@ export class StationService {
     }
 
     const visitedStations = await this.findVisitedStationsByTeam(team!.username);
-    const visitCount = visitedStations.filter(station => station.station.codename === stationCodename).length;
+    // Cong 1 de dung voi lan dau tien choi la 1 - 1 = 0, lan 2 la 2 - 1 = 1, lan 3 la 3 - 1 = 2, ...
+    const visitCount = visitedStations.filter(station => station.station.codename === stationCodename).length + 1;
 
     // Must be greater than or equal to 0
     switch (station.difficulty) {
