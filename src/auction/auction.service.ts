@@ -99,11 +99,11 @@ export class AuctionService {
     this.logger.log(`Skill card ${auction.skillCard} added to team ${winner.team.username}`);
 
     // Remove the winning team's coins
-    await this.teamRepository.updateTeamCoins(SYSTEM_USE_ONLY_STATION_CODENAME, winner.team.username, -winner.auctionedPrice, `Auction ${this.auctionId} win`);
+    await this.teamRepository.updateTeamCoins(SYSTEM_USE_ONLY_STATION_CODENAME, winner.team.username, -winner.auctionedPrice, `${winner.team.username} win auction ${this.auctionId}`);
     this.logger.log(`Deducted ${winner.auctionedPrice} coins from team ${winner.team.username}`);
 
     for (const loser of losers) {
-      await this.teamRepository.updateTeamCoins(SYSTEM_USE_ONLY_STATION_CODENAME, loser.team.username, -(loser.auctionedPrice / 2), `Auction ${this.auctionId} loss`);
+      await this.teamRepository.updateTeamCoins(SYSTEM_USE_ONLY_STATION_CODENAME, loser.team.username, -(loser.auctionedPrice / 2), `${loser.team.username} lose auction ${this.auctionId}`);
       this.logger.log(`Deducted ${loser.auctionedPrice / 2} coins from team ${loser.team.username}`);
     }
 
