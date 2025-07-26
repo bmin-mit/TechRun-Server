@@ -42,7 +42,7 @@ async function bootstrap() {
 
   await app.listen(configuration().port, configuration().host);
   logger.log(`Server is running at http://${configuration().host}:${configuration().port}`);
-  logger.log(`Swagger documentation available at http://${configuration().host}:${configuration().port}/swagger`);
+  logger.log(`Swagger documentation available at http://${configuration().host}:${configuration().port}/api/swagger`);
   logger.log(`MongoDB URI: ${configuration().mongodbUri}`);
 }
 
