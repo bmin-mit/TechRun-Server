@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  Request,
-  UnauthorizedException,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { SkillCardEnum } from '@/common/enums/skill-card.enum';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
@@ -68,7 +58,7 @@ export class TeamController {
     if (!(await this.stationService.verifyPin(body))) {
       throw new UnauthorizedException('Invalid PIN code');
     }
-    return await this.teamService.updateTeamCoins(teamUsername, coins, reason);
+    return await this.teamService.updateTeamCoins(body.stationCodename, teamUsername, coins, reason);
   }
 
   @ApiOperation({ description: 'Create a team', tags: ['Admin'] })

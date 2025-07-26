@@ -51,8 +51,8 @@ export class TeamService {
     return await this.teamRepository.getTeamUnlockedPuzzles(teamUsername);
   }
 
-  async updateTeamCoins(teamUsername: string, coins: number, reason: string) {
-    return await this.teamRepository.updateTeamCoins(teamUsername, coins, reason);
+  async updateTeamCoins(stationCodename: string, teamUsername: string, coins: number, reason: string) {
+    return await this.teamRepository.updateTeamCoins(stationCodename, teamUsername, coins, reason);
   }
 
   async unlockTeamPuzzle(teamUsername: string, unlockIndex: number) {

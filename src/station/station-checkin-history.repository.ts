@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { StationCheckinHistory } from '@/schemas/station-checkin-history.schema';
+import { Station } from '@/schemas/station.schema';
 
 @Injectable()
 export class StationCheckinHistoryRepository {
@@ -12,10 +13,10 @@ export class StationCheckinHistoryRepository {
     return await this.stationCheckinHistoryModel.find({ team: teamUsername }).sort({ createdAt: -1 }).exec();
   }
 
-  async createCheckinHistory(stationId: string, teamUsername: string) {
+  async createCheckinHistory(station: Station, teamUsername: string) {
     // eslint-disable-next-line new-cap
     const newCheckin = new this.stationCheckinHistoryModel({
-      station: stationId,
+      station,
       team: teamUsername,
     });
 

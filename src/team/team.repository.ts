@@ -6,12 +6,14 @@ import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { CreateTeamReqDto, OtherTeamsCoinsResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
 import { CoinsHistory } from '@/schemas/coins-history.schema';
 import { SkillCardHistory } from '@/schemas/skill-card-history.schema';
+import { Station } from '@/schemas/station.schema';
 import { Team } from '@/schemas/team.schema';
 
 @Injectable()
 export class TeamRepository {
   constructor(
     @InjectModel(Team.name) private readonly teamModel: Model<Team>,
+    @InjectModel(Station.name) private readonly stationModel: Model<Station>,
     @InjectModel(CoinsHistory.name) private readonly coinsHistoryModel: Model<CoinsHistory>,
     @InjectModel(SkillCardHistory.name) private readonly skillCardModel: Model<SkillCardHistory>,
     @InjectModel(SkillCardHistory.name) private readonly skillCardHistoryModel: Model<SkillCardHistory>,
@@ -50,13 +52,23 @@ export class TeamRepository {
     return team.unlockedPuzzles;
   }
 
-  async updateTeamCoins(teamUsername: string, diff: number, reason: string): Promise<Team | null> {
+  async updateTeamCoins(stationCodename: string, teamUsername: string, diff: number, reason: string): Promise<Team | null> {
     const team = await this.findTeamByUsername(teamUsername);
+    const station = await this.stationModel.findOne({ codename: stationCodename }).exec();
     if (!team) {
       return null;
     }
 
+    // If the team is using the "Ngôi sao hy vọng" skill card at minigame station, triple the coins
+    if (team.usingSkillCards.includes(SkillCardEnum.NGOI_SAO_HI_VONG) && station!.stationGroup.codename === 'minigame-station') {
+      if (diff > 0)
+        diff *= 3;
+
+      await this.removeUsingSkillCard(team._id!.toString(), SkillCardEnum.NGOI_SAO_HI_VONG);
+    }
+
     await this.coinsHistoryModel.create({
+      station,
       team,
       diff,
       reason,
@@ -198,15 +210,39 @@ export class TeamRepository {
       });
     }
 
+    if (skillCard === SkillCardEnum.NGOI_SAO_HI_VONG) {
+      team.usingSkillCards.push(skillCard);
+    }
+
+    if (skillCard === SkillCardEnum.HOI_SINH) {
+      team.usingSkillCards.push(skillCard);
+    }
+
     // Remove the skill card from the team
     team.skillCards = team.skillCards.filter(card => card !== skillCard);
     await team.save();
 
     // Log the usage of the skill card and return for the client to render
-    await this.skillCardHistoryModel.create({
+    return await this.skillCardHistoryModel.create({
       team,
       skillCard,
       action: SkillCardActionEnum.USED,
     });
+  }
+
+  async removeUsingSkillCard(teamId: string, skillCard: SkillCardEnum) {
+    const team = await this.teamModel.findById(teamId).exec();
+    if (!team) {
+      return null; // Team not found
+    }
+
+    if (!team.usingSkillCards.includes(skillCard)) {
+      return null; // Skill card isn't being used by this team
+    }
+
+    team.usingSkillCards = team.usingSkillCards.filter(card => card !== skillCard);
+    await team.save();
+
+    return team;
   }
 }
