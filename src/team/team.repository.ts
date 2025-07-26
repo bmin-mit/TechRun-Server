@@ -28,7 +28,7 @@ export class TeamRepository {
     return await this.teamModel.findById(teamId).populate('unlockedPuzzles').exec();
   }
 
-  async findAllTeams(): Promise<Team[]> {
+  async findAllTeams() {
     return await this.teamModel.find({ role: UserRoleEnum.PLAYER }).populate('unlockedPuzzles').sort({ coins: -1 }).exec();
   }
 

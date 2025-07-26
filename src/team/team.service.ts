@@ -39,7 +39,7 @@ export class TeamService {
   }
 
   async findAllTeams() {
-    return await this.teamRepository.findAllTeams();
+    return (await this.teamRepository.findAllTeams()).map(team => team.toObject());
   }
 
   async getTeamUnlockedPuzzles(teamId: string) {
