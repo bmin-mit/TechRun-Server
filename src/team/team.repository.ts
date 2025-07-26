@@ -59,12 +59,11 @@ export class TeamRepository {
       return null;
     }
 
-    // If the team is using the "Ngôi sao hy vọng" skill card at minigame station, triple the coins
-    if (team.usingSkillCards.includes(SkillCardEnum.NGOI_SAO_HI_VONG) && station!.stationGroup.codename === 'minigame-station') {
-      if (diff > 0)
-        diff *= 3;
-
-      await this.removeUsingSkillCard(team._id!.toString(), SkillCardEnum.NGOI_SAO_HI_VONG);
+    if (station!.stationGroup.codename === 'minigame-station') {
+      if (team.usingSkillCards.includes(SkillCardEnum.NGOI_SAO_HI_VONG)) {
+        diff = diff > 0 ? diff * 3 : diff; // Triple the coins
+        await this.removeUsingSkillCard(team._id!.toString(), SkillCardEnum.NGOI_SAO_HI_VONG);
+      }
     }
 
     await this.coinsHistoryModel.create({

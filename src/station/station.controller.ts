@@ -110,6 +110,18 @@ export class StationController {
     return await this.stationService.completeStation(teamUsername, body.stationCodename);
   }
 
+  @ApiOperation({ description: 'Pass a minigame station with half coins', tags: ['WithPin'] })
+  @Post('/minigame-pass/:teamUsername')
+  async passMinigameStation(
+    @Param('teamUsername') teamUsername: string,
+    @Body() body: WithPinDto,
+  ) {
+    if (!(await this.stationService.verifyPin(body))) {
+      throw new UnauthorizedException('Invalid PIN code');
+    }
+    return await this.stationService.passMinigameStation(teamUsername, body.stationCodename);
+  }
+
   @ApiOperation({ description: 'Create a new station', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
   @Post('/create')

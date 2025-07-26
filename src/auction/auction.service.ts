@@ -19,7 +19,8 @@ export class AuctionService {
     private readonly auctionRepository: AuctionRepository,
     private readonly auctionTickService: AuctionTickService,
     private readonly teamRepository: TeamRepository,
-  ) {}
+  ) {
+  }
 
   async recordAuctionBid(bidderTeamId: string, bidPrice: number) {
     if (!this.auctionId) {
@@ -84,6 +85,13 @@ export class AuctionService {
     }
 
     const { winner, losers } = await this.auctionRepository.getAuctionWinnerLoser(this.auctionId!);
+
+    if (!winner) {
+      this.logger.log('No winner found for the auction.');
+      this.auctionId = null; // Reset auction ID
+      return;
+    }
+
     this.logger.log(`Auction ended. Winner: ${winner.username}, Losers: ${losers.map(l => l.username).join(', ')}`);
 
     // Add the skill card to the winning team

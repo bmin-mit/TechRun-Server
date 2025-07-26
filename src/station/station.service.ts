@@ -427,17 +427,61 @@ export class StationService {
     const station = await this.findStationByCodename(stationCodename);
 
     if (station!.stationGroup!.codename === 'minigame-station') {
-      switch (station!.difficulty) {
-        case StationDifficultyEnum.EASY:
-          return await this.teamRepository.updateTeamCoins(stationCodename, team.username, 3, `Completing minigame station: ${station!.name}`);
-        case StationDifficultyEnum.MEDIUM:
-          return await this.teamRepository.updateTeamCoins(stationCodename, team.username, 4, `Completing minigame station: ${station!.name}`);
-        case StationDifficultyEnum.HARD:
-          return await this.teamRepository.updateTeamCoins(stationCodename, team.username, 6, `Completing minigame station: ${station!.name}`);
-      }
+      const coinAward = this.getCoinAwardOfMinigameStation(station!.difficulty);
+      return await this.teamRepository.updateTeamCoins(
+        stationCodename,
+        team.username,
+        coinAward,
+        `Completing minigame station ${station!.name}`,
+      );
     }
 
     return await this.teamRepository.unlockPuzzle(team.username, stationCodename);
+  }
+
+  async passMinigameStation(
+    teamUsername: string,
+    stationCodename: string,
+  ) {
+    const team = await this.teamRepository.findTeamByUsername(teamUsername);
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+
+    const station = await this.findStationByCodename(stationCodename);
+
+    if (station!.stationGroup!.codename !== 'minigame-station') {
+      throw new ConflictException('This station is not a minigame station');
+    }
+
+    if (!team.usingSkillCards.includes(SkillCardEnum.VUOT_TRAM_PHU)) {
+      throw new ConflictException('You must use the "Vượt trạm phú" skill card to pass a minigame station');
+    }
+
+    // Pass minigame station with card "Vượt trạm phu" is only half coins
+    const coinAward = this.getCoinAwardOfMinigameStation(station!.difficulty) / 2;
+
+    await this.teamRepository.removeUsingSkillCard(team._id!.toString(), SkillCardEnum.VUOT_TRAM_PHU);
+
+    return await this.teamRepository.updateTeamCoins(
+      stationCodename,
+      team.username,
+      coinAward,
+      `Passing minigame station ${station!.name} with half coins`,
+    );
+  }
+
+  getCoinAwardOfMinigameStation(difficulty: StationDifficultyEnum) {
+    switch (difficulty) {
+      case StationDifficultyEnum.EASY:
+        return 3;
+      case StationDifficultyEnum.MEDIUM:
+        return 4;
+      case StationDifficultyEnum.HARD:
+        return 6;
+      default:
+        throw new NotFoundException('Station difficulty not found');
+    }
   }
 
   async skip(teamId: string, stationCodename: string) {
