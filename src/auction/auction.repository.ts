@@ -15,7 +15,8 @@ export class AuctionRepository {
     private readonly auctionStatusModel: Model<AuctionStatus>,
     @InjectModel(AuctionHistory.name)
     private readonly auctionHistoryModel: Model<AuctionHistory>,
-  ) {}
+  ) {
+  }
 
   async getAuctionHistory(auctionId: string) {
     return await this.auctionHistoryModel.find({ auction: auctionId }).sort({ createdAt: -1 }).exec();
@@ -38,12 +39,14 @@ export class AuctionRepository {
   }
 
   async createAuction(skillCard: SkillCardEnum, prepareDurationInSeconds: number, durationInSeconds: number) {
+    const startTime = new Date();
+    const endTime = new Date(startTime.getTime() + (prepareDurationInSeconds + durationInSeconds) * 1000);
     // eslint-disable-next-line new-cap
     const auction = new this.auctionModel({
       skillCard,
       durationInSeconds,
-      startTime: new Date(),
-      endTime: new Date(Date.now() + (prepareDurationInSeconds + durationInSeconds) * 1000),
+      startTime,
+      endTime,
     });
 
     return await auction.save();

@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Query,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AuctionService } from '@/auction/auction.service';
 import { SkillCardEnum } from '@/common/enums/skill-card.enum';
@@ -15,7 +8,8 @@ import { AuthGuard } from '@/guards/auth.guard';
 
 @Controller('auction')
 export class AuctionController {
-  constructor(private readonly auctionService: AuctionService) {}
+  constructor(private readonly auctionService: AuctionService) {
+  }
 
   @ApiOperation({ description: 'Get auction status', tags: ['Admin'] })
   @UseGuards(AuthGuard(UserRoleEnum.ADMIN))
@@ -37,10 +31,10 @@ export class AuctionController {
   @Post('/create')
   createAuction(
     @Query('skillCard') skillCard: SkillCardEnum,
-    @Query('prepareDurationInSeconds') prepareDurationInSeconds: number,
-    @Query('durationInSeconds') durationInSeconds: number,
+    @Query('prepareDurationInSeconds') prepareDurationInSeconds: string,
+    @Query('durationInSeconds') durationInSeconds: string,
   ) {
-    return this.auctionService.createAuction(skillCard, prepareDurationInSeconds, durationInSeconds);
+    return this.auctionService.createAuction(skillCard, Number(prepareDurationInSeconds), Number(durationInSeconds));
   }
 
   @ApiOperation({ description: 'Get current auction' })
