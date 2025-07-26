@@ -492,8 +492,9 @@ export class StationService {
     }
   }
 
-  async skip(teamId: string, stationCodename: string) {
-    if (!(await this.teamRepository.findTeamById(teamId))) {
+  async skip(teamUsername: string, stationCodename: string) {
+    const team = await this.teamRepository.findTeamByUsername(teamUsername);
+    if (!team) {
       throw new NotFoundException('Team not found');
     }
 
@@ -503,39 +504,20 @@ export class StationService {
 
     const stationGroupId = (await this.stationRepository.findStationByCodename(stationCodename))!.stationGroup!._id!.toString();
 
-    return await this.stationRepository.skip(teamId, stationGroupId);
+    return await this.stationRepository.skip(team._id!.toString(), stationGroupId);
   }
 
-  async unskip(teamId: string, stationCodename: string, noCoinsUpdate: boolean = false) {
-    if (!(await this.teamRepository.findTeamById(teamId))) {
+  async unskip(teamUsername: string, stationCodename: string) {
+    const team = await this.teamRepository.findTeamByUsername(teamUsername);
+    if (!team) {
       throw new NotFoundException('Team not found');
     }
 
     const stationGroupId = (await this.stationRepository.findStationByCodename(stationCodename))!.stationGroup!._id!.toString();
 
-    if (noCoinsUpdate) {
-      return await this.stationRepository.unskip(teamId, stationGroupId);
-    }
+    await this.teamRepository.removeUsingSkillCard(team._id!.toString(), SkillCardEnum.HOI_SINH);
 
-    const team = await this.teamRepository.findTeamById(teamId);
-    if (!team) {
-      throw new NotFoundException('Team not found');
-    }
-
-    let unskipPrice = this.stationRepository.getUnskipPrice();
-
-    if (team.usingSkillCards.includes(SkillCardEnum.HOI_SINH)) {
-      unskipPrice = 0;
-      await this.teamRepository.removeUsingSkillCard(teamId, SkillCardEnum.HOI_SINH);
-    }
-
-    if (team.coins < unskipPrice) {
-      throw new ConflictException('Not enough coins to unskip this station group');
-    }
-
-    await this.teamRepository.updateTeamCoins(stationCodename, team.username, -unskipPrice, `Unskipping station group ${stationGroupId}`);
-
-    return await this.stationRepository.unskip(teamId, stationGroupId);
+    return await this.stationRepository.unskip(team._id!.toString(), stationGroupId);
   }
 
   async verifyPin(body: WithPinDto) {

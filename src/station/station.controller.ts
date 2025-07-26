@@ -146,25 +146,24 @@ export class StationController {
   @ApiOperation({ description: 'Skip a station', tags: ['WithPin'] })
   @Post('/skip')
   async skipStation(
-    @Query('teamId') teamId: string,
+    @Query('teamUsername') teamUsername: string,
     @Body() body: WithPinDto,
   ) {
     if (!(await this.stationService.verifyPin(body))) {
       throw new UnauthorizedException('Invalid PIN code');
     }
-    return await this.stationService.skip(teamId, body.stationCodename);
+    return await this.stationService.skip(teamUsername, body.stationCodename);
   }
 
   @ApiOperation({ description: 'Unskip a station', tags: ['WithPin'] })
   @Post('/unskip')
   async unskipStation(
-    @Query('teamId') teamId: string,
-    @Query('noCoinsUpdate') noCoinsUpdate: boolean = false,
+    @Query('teamUsername') teamUsername: string,
     @Body() body: WithPinDto,
   ) {
     if (!(await this.stationService.verifyPin(body))) {
       throw new UnauthorizedException('Invalid PIN code');
     }
-    return await this.stationService.unskip(teamId, body.stationCodename, noCoinsUpdate);
+    return await this.stationService.unskip(teamUsername, body.stationCodename);
   }
 }

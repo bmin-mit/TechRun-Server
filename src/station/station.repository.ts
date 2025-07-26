@@ -47,10 +47,6 @@ export class StationRepository {
     return await this.stationModel.findByIdAndDelete(stationId).exec();
   }
 
-  getUnskipPrice(): number {
-    return 30;
-  }
-
   async skip(teamId: string, stationGroupId: string): Promise<Skip> {
     // eslint-disable-next-line new-cap
     const skip = new this.skipModel({
