@@ -337,18 +337,22 @@ export class StationService {
     return await this.stationRepository.deleteStation(stationId);
   }
 
-  async visitStation(stationId: string, teamId: string) {
-    if (!(await this.teamRepository.findTeamById(teamId))) {
+  async visitStation(stationCodename: string, teamUsername: string) {
+    const station = await this.findStationByCodename(stationCodename);
+    const team = await this.teamRepository.findTeamByUsername(teamUsername);
+
+    if (!team) {
       throw new NotFoundException('Team not found');
     }
 
-    if (!(await this.canTeamVisitStation(stationId, teamId))) {
+    const teamId = team._id!.toString();
+    const stationId = station?._id!.toString();
+
+    if (!(await this.canTeamVisitStation(stationId!, teamId))) {
       throw new ConflictException('Team cannot visit this station');
     }
 
-    const teamUsername = (await this.teamRepository.findTeamById(teamId))!.username;
-    const station = await this.findStationById(stationId);
-    const price = await this.getVisitPrice(stationId, teamId);
+    const price = await this.getVisitPrice(stationId!, teamId);
 
     await this.teamRepository.updateTeamCoins(station!.codename, teamUsername, -price, `Visiting station ${station!.name}`);
     return await this.stationCheckinHistoryRepository.createCheckinHistory(station!, teamId);

@@ -83,11 +83,13 @@ export class StationController {
     return await this.stationService.canTeamVisitStation(id, req.user._id!.toString());
   }
 
-  @ApiOperation({ description: 'Mark a station as visited' })
-  @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
-  @Post('/visit/:id')
-  async visitStation(@Param('id') id: string, @Request() req: AuthRequest) {
-    return await this.stationService.visitStation(id, req.user._id!.toString());
+  @ApiOperation({ description: 'Mark a station as visited', tags: ['WithPin'] })
+  @Post('/visit/:stationCodename')
+  async visitStation(@Body() body: WithPinDto, @Param('stationCodename') stationCodename: string, @Query('teamUsername') teamUsername: string) {
+    if (!(await this.stationService.verifyPin(body))) {
+      throw new UnauthorizedException('Invalid PIN code');
+    }
+    return await this.stationService.visitStation(stationCodename, teamUsername);
   }
 
   @ApiOperation({ description: 'Admin get all stations that a team has visited', tags: ['Admin'] })
