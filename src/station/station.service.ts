@@ -378,7 +378,7 @@ export class StationService {
       throw new ConflictException(`Not enough coins to visit this station. Required: ${price}, Available: ${team.coins}`);
     }
 
-    const visitedStations = await this.findVisitedStationsByTeam(teamId);
+    const visitedStations = await this.findVisitedStationsByTeam(team.username);
     return !visitedStations.some(station => station._id!.toString() === stationId);
   }
 
@@ -393,7 +393,12 @@ export class StationService {
       throw new NotFoundException('Station not found');
     }
 
-    const visitedStations = await this.findVisitedStationsByTeam(teamId);
+    const team = await this.teamRepository.findTeamById(teamId);
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+
+    const visitedStations = await this.findVisitedStationsByTeam(team!.username);
     const visitCount = visitedStations.filter(station => station._id!.toString() === stationId).length;
 
     // Must be greater than or equal to 0
