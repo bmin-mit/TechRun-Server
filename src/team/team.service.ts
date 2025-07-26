@@ -55,8 +55,8 @@ export class TeamService {
     return await this.teamRepository.updateTeamCoins(stationCodename, teamUsername, coins, reason);
   }
 
-  async unlockTeamPuzzle(teamUsername: string, unlockIndex: number) {
-    return await this.teamRepository.unlockPuzzle(teamUsername, unlockIndex);
+  async unlockTeamPuzzle(teamUsername: string, stationCodename: string) {
+    return await this.teamRepository.unlockPuzzle(teamUsername, stationCodename);
   }
 
   async createTeam(teamData: CreateTeamReqDto) {

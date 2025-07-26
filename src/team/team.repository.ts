@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { SkillCardActionEnum, SkillCardEnum } from '@/common/enums/skill-card.enum';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { CreateTeamReqDto, OtherTeamsCoinsResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
@@ -21,15 +21,15 @@ export class TeamRepository {
   }
 
   async findTeamByUsername(codename: string): Promise<Team | null> {
-    return await this.teamModel.findOne({ username: codename }).exec();
+    return await this.teamModel.findOne({ username: codename }).populate('unlockedPuzzles').exec();
   }
 
   async findTeamById(teamId: string): Promise<Team | null> {
-    return await this.teamModel.findById(teamId).exec();
+    return await this.teamModel.findById(teamId).populate('unlockedPuzzles').exec();
   }
 
   async findAllTeams(): Promise<Team[]> {
-    return await this.teamModel.find({}).sort({ coins: -1 }).exec();
+    return await this.teamModel.find({}).populate('unlockedPuzzles').sort({ coins: -1 }).exec();
   }
 
   async getTeamCoins(teamUsername: string): Promise<number | null> {
@@ -42,7 +42,7 @@ export class TeamRepository {
     return team.coins;
   }
 
-  async getTeamUnlockedPuzzles(teamUsername: string): Promise<number[] | null> {
+  async getTeamUnlockedPuzzles(teamUsername: string): Promise<Station[] | null> {
     const team = await this.teamModel.findOne({ username: teamUsername }).exec();
 
     if (!team) {
@@ -104,14 +104,21 @@ export class TeamRepository {
     })).filter(team => team.username !== 'admin'); // Exclude admin team
   }
 
-  async unlockPuzzle(teamUsername: string, unlockedIndex: number) {
-    const team = await this.teamModel.findOne({ username: teamUsername }).exec();
+  async unlockPuzzle(teamUsername: string, stationCodename: string) {
+    const team = await this.teamModel.findOne({ username: teamUsername }).populate('unlockedPuzzles').exec();
     if (!team) {
       return null; // Team not found
     }
 
-    if (!team.unlockedPuzzles.includes(unlockedIndex)) {
-      team.unlockedPuzzles.push(unlockedIndex);
+    const station = await this.stationModel.findOne({ codename: stationCodename }).exec();
+    if (!stationCodename) {
+      return null; // Station not found
+    }
+    const stationId = station!._id!.toString();
+
+    if (!team.unlockedPuzzles.some(puzzle => puzzle._id!.toString() === stationId)) {
+      // @ts-expect-error Mongoose will handle the ObjectId conversion
+      team.unlockedPuzzles.push({ _id: new mongoose.Types.ObjectId(stationId) });
     }
 
     return await team.save();

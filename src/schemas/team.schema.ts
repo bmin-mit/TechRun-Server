@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import mongoose from 'mongoose';
 import { SkillCardEnum } from '@/common/enums/skill-card.enum';
 import { UserRoleEnum } from '@/common/enums/user-role.enum';
 import { Base } from '@/schemas/base.schema';
+import { Station } from '@/schemas/station.schema';
 
 @Schema()
 export class Team extends Base {
@@ -27,8 +29,8 @@ export class Team extends Base {
   coins: number;
 
   @ApiProperty({ description: 'The team\'s unlocked "Năng lực số" indices array' })
-  @Prop({ type: [Number], default: [] })
-  unlockedPuzzles: Array<number>;
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: Station.name }], default: [] })
+  unlockedPuzzles: Array<Station>;
 
   @ApiProperty({ description: 'The team\'s skill cards' })
   @Prop({ type: [String], default: [], enum: SkillCardEnum })

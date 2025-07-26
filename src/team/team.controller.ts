@@ -6,6 +6,7 @@ import { AuthRequest } from '@/common/interfaces/auth-request.interface';
 import { CreateTeamReqDto, MeResDto, OtherTeamsCoinsResDto, UpdateTeamReqDto } from '@/dtos/team.dto';
 import { WithPinDto } from '@/dtos/with-pin.dto';
 import { AuthGuard } from '@/guards/auth.guard';
+import { Station } from '@/schemas/station.schema';
 import { StationService } from '@/station/station.service';
 import { TeamService } from '@/team/team.service';
 
@@ -86,6 +87,7 @@ export class TeamController {
   }
 
   @ApiOperation({ description: 'Get team unlocked puzzles' })
+  @ApiResponse({ status: 200, description: 'Returns the team\'s unlocked puzzles', type: [Station] })
   @UseGuards(AuthGuard(UserRoleEnum.PLAYER))
   @Get('/unlocked-puzzles')
   async getTeamUnlockedPuzzles(@Request() req: AuthRequest) {
@@ -97,13 +99,12 @@ export class TeamController {
   @Post('/unlock-puzzle')
   async unlockTeamPuzzle(
     @Query('teamUsername') teamUsername: string,
-    @Query('unlockIndex') unlockIndex: number,
     @Body() body: WithPinDto,
   ) {
     if (!(await this.stationService.verifyPin(body))) {
       throw new UnauthorizedException('Invalid PIN code');
     }
-    return await this.teamService.unlockTeamPuzzle(teamUsername, unlockIndex);
+    return await this.teamService.unlockTeamPuzzle(teamUsername, body.stationCodename);
   }
 
   @ApiOperation({ description: 'Get my team info' })

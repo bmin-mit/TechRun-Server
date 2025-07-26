@@ -1,4 +1,5 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { Station } from '@/schemas/station.schema';
 import { Team } from '@/schemas/team.schema';
 
 export class CreateTeamReqDto extends OmitType(Team, ['_id', 'createdAt', 'updatedAt', 'role'] as const) {}
@@ -27,7 +28,7 @@ export class MeResDto {
   coins: number;
 
   @ApiProperty({ description: 'The team\'s unlocked "Năng lực số" indices array' })
-  unlockedPuzzles: Array<number>;
+  unlockedPuzzles: Array<Station>;
 
   @ApiProperty({ description: 'The team\'s skill cards' })
   skillCards: Array<string>;
