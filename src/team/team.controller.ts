@@ -31,7 +31,12 @@ export class TeamController {
     if (!(await this.stationService.verifyPin(body))) {
       throw new UnauthorizedException('Invalid PIN code');
     }
-    return await this.teamService.findAllTeams();
+    return (await this.teamService.findAllTeams()).map(team =>
+      ({
+        ...team,
+        password: undefined,
+      }),
+    );
   }
 
   @ApiOperation({ description: 'Get team by team username', tags: ['Admin'] })

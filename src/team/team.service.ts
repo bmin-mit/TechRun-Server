@@ -68,7 +68,8 @@ export class TeamService {
   }
 
   async updateTeam(teamUsername: string, teamData: UpdateTeamReqDto) {
-    if (await this.findTeamByUsername(teamUsername) === null) {
+    const team = await this.findTeamByUsername(teamUsername);
+    if (!team) {
       throw new NotFoundException('The team with this username does not exist.');
     }
 
@@ -76,7 +77,7 @@ export class TeamService {
       throw new ConflictException('The team with this username already exists.');
     }
 
-    return await this.teamRepository.updateTeam(teamUsername, teamData);
+    return await this.teamRepository.updateTeam(team._id!.toString(), teamData);
   }
 
   async deleteTeam(teamUsername: string) {

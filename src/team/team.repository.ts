@@ -87,8 +87,8 @@ export class TeamRepository {
     return await newTeam.save();
   }
 
-  async updateTeam(teamUsername: string, teamData: UpdateTeamReqDto): Promise<Team | null> {
-    return await this.teamModel.findByIdAndUpdate(teamUsername, teamData, { new: true }).exec();
+  async updateTeam(teamId: string, teamData: UpdateTeamReqDto): Promise<Team | null> {
+    return await this.teamModel.findByIdAndUpdate(teamId, teamData, { new: true }).exec();
   }
 
   async deleteTeam(teamUsername: string): Promise<Team | null> {
