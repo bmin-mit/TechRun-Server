@@ -34,7 +34,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, documentConfig);
 
   app.use(
-    '/swagger',
+    '/api/swagger',
     apiReference({
       content: document,
     }),
