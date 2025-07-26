@@ -1,5 +1,5 @@
 localhost {
-    route /api/* {
+    route /api/* /api /api/ {
         reverse_proxy techrun_server:5001
     }
 
