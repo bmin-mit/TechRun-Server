@@ -152,6 +152,7 @@ export class TeamController {
     @Request() req: AuthRequest,
     @Query('skillCard') skillCard: SkillCardEnum,
   ) {
+    console.log(`Using skill card: ${skillCard} for team ID: ${req.user.username}`);
     return await this.teamService.useSkillCard(req.user._id!.toString(), skillCard);
   }
 }
