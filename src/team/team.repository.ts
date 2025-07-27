@@ -54,7 +54,7 @@ export class TeamRepository {
 
   async updateTeamCoins(stationCodename: string, teamUsername: string, diff: number, reason: string): Promise<Team | null> {
     const team = await this.findTeamByUsername(teamUsername);
-    const station = await this.stationModel.findOne({ codename: stationCodename }).exec();
+    const station = await this.stationModel.findOne({ codename: stationCodename }).populate('stationGroup').exec();
     if (!team) {
       return null;
     }
