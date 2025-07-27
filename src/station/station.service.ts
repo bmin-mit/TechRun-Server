@@ -513,6 +513,9 @@ export class StationService {
       throw new NotFoundException('Team not found');
     }
 
+    if (!team.usingSkillCards.includes(SkillCardEnum.HOI_SINH))
+      throw new ConflictException('You must use the "Hồi sinh" skill card to unskip a station');
+
     const stationGroupId = (await this.stationRepository.findStationByCodename(stationCodename))!.stationGroup!._id!.toString();
 
     await this.teamRepository.removeUsingSkillCard(team._id!.toString(), SkillCardEnum.HOI_SINH);

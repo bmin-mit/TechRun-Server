@@ -224,6 +224,10 @@ export class TeamRepository {
       team.usingSkillCards.push(skillCard);
     }
 
+    if (skillCard === SkillCardEnum.HOI_SINH) {
+      team.usingSkillCards.push(skillCard);
+    }
+
     // Remove the skill card from the team
     team.skillCards = team.skillCards.filter(card => card !== skillCard);
     await team.save();
