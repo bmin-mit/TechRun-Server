@@ -11,7 +11,8 @@ export class SkillCardHistory extends Base {
   @Prop({ required: true, index: true, type: mongoose.Schema.Types.ObjectId, ref: Team.name })
   team: Team;
 
-  @ApiProperty({ description: 'The skill card', type: String, enum: SkillCardEnum })
+  @ApiProperty({ description: 'The skill card' })
+  @Prop({ required: true, type: String, enum: SkillCardEnum })
   skillCard: SkillCardEnum;
 
   @ApiProperty({ description: 'Action' })

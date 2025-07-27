@@ -189,8 +189,9 @@ export class TeamRepository {
     if (skillCard === SkillCardEnum.DONG_BO) {
       // Use the previously used skill card
       const previousCard = (await this.skillCardHistoryModel
-        .find({ team: team._id })
+        .find({ team: team._id, action: SkillCardActionEnum.USED })
         .sort({ createdAt: -1 })
+        .populate('team')
         .exec())[0];
 
       if (!previousCard) {
